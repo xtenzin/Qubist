@@ -1,0 +1,29 @@
+{
+  "name": "qubist",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "A Qdrant vector database web management tool",
+  "author": "xtenzin <code@xtenzin.com>",
+  "scripts": {
+    "dev": "vite --port 16333",
+    "build": "vue-tsc && vite build",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "@element-plus/icons-vue": "^2.3.1",
+    "axios": "^1.7.9",
+    "element-plus": "^2.9.1",
+    "pinia": "^2.3.0",
+    "pinia-plugin-persistedstate": "^3.2.3",
+    "vue": "^3.5.13",
+    "vue-json-pretty": "^2.6.0",
+    "vue-router": "^4.5.0"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-vue": "^5.2.1",
+    "typescript": "~5.6.2",
+    "vite": "^6.0.11",
+    "vue-tsc": "^2.2.0"
+  }
+}
