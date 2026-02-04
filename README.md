@@ -4,14 +4,14 @@
 
 [![CI](https://github.com/xtenzin/Qubist/actions/workflows/ci.yml/badge.svg)](https://github.com/xtenzin/Qubist/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![Version](https://img.shields.io/badge/version-0.1.1-blue.svg)](https://github.com/xtenzin/Qubist)
+[![Version](https://img.shields.io/badge/version-0.2.0-blue.svg)](https://github.com/xtenzin/Qubist)
 [![Node.js](https://img.shields.io/badge/Node.js-18.x%20%7C%2020.x-green.svg)](https://nodejs.org/)
 
 A Qdrant vector database web management tool developed with Vue 3 + TypeScript, providing a more user-friendly data management solution than the official interface.
 
 ## Version
 
-**Current Version**: 0.1.1
+**Current Version**: 0.2.0
 
 ## Copyright
 
@@ -43,6 +43,9 @@ Qubist is a web-based management interface for Qdrant vector database, designed 
 - Complete CRUD operations for point data
 - Data list display with ID, vector, and Payload information
 - View, add, edit, and delete point data
+- Batch delete functionality with multi-select support
+- Data import from JSON and CSV files
+- Data export to JSON and CSV formats (current page, selected, query results, or all)
 - Pagination support with customizable page sizes
 - Data refresh functionality
 

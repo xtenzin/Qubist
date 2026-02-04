@@ -4,14 +4,14 @@
 
 [![CI](https://github.com/xtenzin/Qubist/actions/workflows/ci.yml/badge.svg)](https://github.com/xtenzin/Qubist/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![Version](https://img.shields.io/badge/version-0.1.1-blue.svg)](https://github.com/xtenzin/Qubist)
+[![Version](https://img.shields.io/badge/version-0.2.0-blue.svg)](https://github.com/xtenzin/Qubist)
 [![Node.js](https://img.shields.io/badge/Node.js-18.x%20%7C%2020.x-green.svg)](https://nodejs.org/)
 
 基于 Vue 3 + TypeScript 开发的 Qdrant 向量数据库 Web 管理工具，提供比官方界面更友好的数据管理方案。
 
 ## 版本
 
-**当前版本**: 0.1.1
+**当前版本**: 0.2.0
 
 ## 版权
 
@@ -43,6 +43,9 @@ Qubist 是一个基于 Web 的 Qdrant 向量数据库管理界面，旨在简化
 - 点数据的完整 CRUD 操作
 - 数据列表显示，包含 ID、向量和 Payload 信息
 - 查看、添加、编辑和删除点数据
+- 批量删除功能，支持多选操作
+- 从 JSON 和 CSV 文件导入数据
+- 导出数据为 JSON 和 CSV 格式（支持导出本页、选中、查询结果或全部）
 - 分页支持，可自定义每页大小
 - 数据刷新功能
 

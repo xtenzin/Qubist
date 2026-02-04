@@ -11,8 +11,36 @@ and this project adheres to [Semantic Versioning](https://semver.org/lang/en-US/
 
 ### Planned
 - Vector similarity search functionality
-- Batch operations functionality
-- Data import/export functionality
+- Data statistics functionality
+
+## [0.2.0] - 2026-02-04
+
+### Added
+- Batch delete functionality: multi-select support in points table with checkbox selection
+- Data import functionality: import points from JSON and CSV files with format validation and preview
+- Data export functionality: export points to JSON and CSV formats with multiple export options:
+  - Export current page
+  - Export selected points
+  - Export query results (all data in collection)
+  - Export all data (all data in collection)
+- Export format selection dialog with visual icon buttons (JSON and CSV)
+- Progress indication for large data exports with loading status
+
+### Changed
+- Improved export workflow: format selection dialog appears after choosing export scope
+- Enhanced data loading: export operations load data in batches (500 points per request) to avoid timeouts
+- Optimized export performance: added delays between requests to prevent server overload
+- Improved UI: wider form fields in create collection dialog to prevent label text wrapping
+
+### Fixed
+- Fixed connection state check: prevent loading collections when not connected
+- Fixed API error handling: improved error messages and connection validation
+- Fixed import dialog: proper internationalization for file format tip text
+
+### Improved
+- Better error handling for batch operations
+- Enhanced user experience for data import/export operations
+- Improved code organization for import/export utilities
 
 ## [0.1.1] - 2026-02-04
 
