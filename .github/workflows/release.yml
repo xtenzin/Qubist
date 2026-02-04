@@ -60,23 +60,69 @@ jobs:
         working-directory: ./src
         run: npm run build
 
+      # 验证构建产物
+      # Verify build artifacts
+      - name: List dist directory
+        run: |
+          ls -la dist/ || echo "dist directory not found"
+          pwd
+
       # 创建压缩包
       # Create release archive
       - name: Create release archive
         run: |
-          cd dist
-          tar -czf ../qubist-${{ steps.tag.outputs.tag }}.tar.gz .
-          cd ..
-          zip -r qubist-${{ steps.tag.outputs.tag }}.zip dist/
+          if [ -d "dist" ]; then
+            echo "Creating archives from dist directory..."
+            cd dist
+            tar -czf ../qubist-${{ steps.tag.outputs.tag }}.tar.gz .
+            cd ..
+            zip -r qubist-${{ steps.tag.outputs.tag }}.zip dist/
+            echo "Archives created:"
+            ls -lh qubist-${{ steps.tag.outputs.tag }}.*
+            echo "File sizes:"
+            du -h qubist-${{ steps.tag.outputs.tag }}.*
+          else
+            echo "Error: dist directory not found!"
+            exit 1
+          fi
 
-      # 上传 Release 文件（支持手动触发和 Release 事件）
-      # Upload Release files (supports both manual trigger and release events)
+      # 验证文件存在
+      # Verify files exist
+      - name: Verify release files exist
+        run: |
+          echo "Current directory:"
+          pwd
+          echo "Files to upload:"
+          ls -lah qubist-${{ steps.tag.outputs.tag }}.*
+          if [ ! -f "qubist-${{ steps.tag.outputs.tag }}.tar.gz" ] || [ ! -f "qubist-${{ steps.tag.outputs.tag }}.zip" ]; then
+            echo "Error: Required files not found!"
+            exit 1
+          fi
+
+      # 上传 Release 文件（使用 GitHub CLI 上传，确保能更新已存在的 Release）
+      # Upload Release files (using GitHub CLI to ensure updates to existing releases)
       - name: Upload Release assets
-        uses: softprops/action-gh-release@v1
-        with:
-          tag_name: ${{ steps.tag.outputs.tag }}
-          files: |
-            qubist-${{ steps.tag.outputs.tag }}.tar.gz
-            qubist-${{ steps.tag.outputs.tag }}.zip
+        run: |
+          echo "Uploading files to release ${{ steps.tag.outputs.tag }}"
+          
+          # 检查 Release 是否存在
+          # Check if release exists
+          if gh release view ${{ steps.tag.outputs.tag }} >/dev/null 2>&1; then
+            echo "Release exists, uploading files..."
+            gh release upload ${{ steps.tag.outputs.tag }} \
+              qubist-${{ steps.tag.outputs.tag }}.tar.gz \
+              qubist-${{ steps.tag.outputs.tag }}.zip \
+              --clobber
+          else
+            echo "Release does not exist, creating it with files..."
+            gh release create ${{ steps.tag.outputs.tag }} \
+              --title "${{ steps.tag.outputs.tag }}" \
+              --notes "Release ${{ steps.tag.outputs.tag }}" \
+              qubist-${{ steps.tag.outputs.tag }}.tar.gz \
+              qubist-${{ steps.tag.outputs.tag }}.zip
+          fi
+          
+          echo "Upload completed. Listing release assets:"
+          gh release view ${{ steps.tag.outputs.tag }} --json assets -q '.assets[].name'
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
