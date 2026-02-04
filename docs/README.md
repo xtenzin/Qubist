@@ -44,6 +44,15 @@ This document outlines the project's feature planning, technology stack, project
 
 该文档概述了项目的功能规划、技术栈、项目结构和开发规范。
 
+### Deployment Guide / 部署指南
+
+- **English**: [deployment_en-US.md](en-US/deployment_en-US.md)
+- **中文**: [deployment_zh-CN.md](zh-CN/deployment_zh-CN.md)
+
+This document describes how to deploy Qubist to production environments, including Nginx, Apache, Docker, and Docker Compose deployment methods.
+
+该文档介绍如何将 Qubist 部署到生产环境，包括 Nginx、Apache、Docker 和 Docker Compose 等部署方式。
+
 ## Document Purpose / 文档用途
 
 The `docs/` directory contains all project documentation, including:
