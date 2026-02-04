@@ -1,6 +1,13 @@
 <template>
   <div class="points-table-container">
-    <el-table :data="points" stripe style="width: 100%" v-loading="loading">
+    <el-table
+      :data="points"
+      stripe
+      style="width: 100%"
+      v-loading="loading"
+      @selection-change="handleSelectionChange"
+    >
+      <el-table-column type="selection" width="55" />
       <el-table-column prop="id" :label="$t('point.id')" width="120">
         <template #default="{ row }">
           <div class="table-cell-with-copy">
@@ -74,6 +81,7 @@ const emit = defineEmits<{
   edit: [point: Point]
   delete: [point: Point]
   'page-change': [currentPage: number, pageSize: number]
+  'selection-change': [points: Point[]]
 }>()
 
 const currentPageModel = ref(props.currentPage)
@@ -101,6 +109,12 @@ const handleCurrentChange = (val: number) => {
 // Copy text
 const handleCopy = (text: string) => {
   copyToClipboard(text)
+}
+
+// 选择变化处理
+// Handle selection change
+const handleSelectionChange = (selectedPoints: Point[]) => {
+  emit('selection-change', selectedPoints)
 }
 </script>
 
