@@ -281,9 +281,4 @@ Qubist/
 ## Future Expansion Directions
 
 1. **Search Functionality**: Support vector similarity search
-2. **Batch Operations**: Support batch adding and deleting point data
-3. **Data Import/Export**: Support data import/export in JSON, CSV formats
-4. **Performance Optimization**: Performance optimization for large data volumes
-5. **Permission Management**: More granular permission control
-6. **Operation Logs**: Record user operation history
-7. **Data Statistics**: Display collection and point statistics
+2. **Data Statistics**: Display collection and point statistics
