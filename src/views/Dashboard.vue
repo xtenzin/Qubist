@@ -30,6 +30,37 @@
                 <el-icon><Refresh /></el-icon>
                 {{ $t('common.refresh') }}
               </el-button>
+              <el-button v-if="selectedPoints.length > 0" type="danger" @click="handleBatchDelete">
+                <el-icon><Delete /></el-icon>
+                {{ $t('common.batchDelete') }} ({{ selectedPoints.length }})
+              </el-button>
+              <el-dropdown @command="handleExportTypeSelect" trigger="click">
+                <el-button>
+                  <el-icon><Download /></el-icon>
+                  {{ $t('common.export') }}
+                  <el-icon class="el-icon--right"><arrow-down /></el-icon>
+                </el-button>
+                <template #dropdown>
+                  <el-dropdown-menu>
+                    <el-dropdown-item command="current-page">
+                      {{ $t('point.exportCurrentPage') }}
+                    </el-dropdown-item>
+                    <el-dropdown-item command="selected" :disabled="selectedPoints.length === 0">
+                      {{ $t('point.exportSelected') }} ({{ selectedPoints.length }})
+                    </el-dropdown-item>
+                    <el-dropdown-item command="query">
+                      {{ $t('point.exportQuery') }}
+                    </el-dropdown-item>
+                    <el-dropdown-item command="all">
+                      {{ $t('point.exportAll') }}
+                    </el-dropdown-item>
+                  </el-dropdown-menu>
+                </template>
+              </el-dropdown>
+              <el-button @click="handleImport">
+                <el-icon><Upload /></el-icon>
+                {{ $t('common.import') }}
+              </el-button>
               <el-button type="primary" @click="handleAddPoint">
                 <el-icon><Plus /></el-icon>
                 {{ $t('point.add') }}
@@ -48,6 +79,7 @@
               @edit="handleEditPoint"
               @delete="handleDeletePoint"
               @page-change="handlePageChange"
+              @selection-change="handleSelectionChange"
             />
           </div>
         </div>
@@ -101,6 +133,14 @@
       @load-latest="handleLoadLatestPoint"
     />
 
+    <!-- 导入对话框 -->
+    <!-- Import dialog -->
+    <ImportDialog v-model="importVisible" @import="handleImportConfirm" />
+
+    <!-- 导出格式选择对话框 -->
+    <!-- Export format selection dialog -->
+    <ExportFormatDialog v-model="exportFormatVisible" @select="handleExportFormatSelect" />
+
     <!-- 底部版权信息 -->
     <!-- Footer copyright information -->
     <div class="dashboard-footer">
@@ -115,9 +155,10 @@
 import { ref, computed, onMounted } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { ElMessage } from 'element-plus'
-import { Refresh, Plus, Coin } from '@element-plus/icons-vue'
+import { Refresh, Plus, Coin, Delete, Download, Upload, ArrowDown, Document, DocumentCopy } from '@element-plus/icons-vue'
 import { getPoints, getCollectionInfo } from '@/api/qdrant'
 import { useCollections } from '@/composables/useCollections'
+import { useConnectionStore } from '@/stores/connection'
 import DashboardHeader from '@/components/DashboardHeader.vue'
 import CollectionList from '@/components/CollectionList.vue'
 import PointsTable from '@/components/PointsTable.vue'
@@ -126,7 +167,10 @@ import CollectionSettingsDialog from '@/components/CollectionSettingsDialog.vue'
 import CreateCollectionDialog from '@/components/CreateCollectionDialog.vue'
 import PointViewDialog from '@/components/PointViewDialog.vue'
 import PointFormDialog from '@/components/PointFormDialog.vue'
+import ImportDialog from '@/components/ImportDialog.vue'
+import ExportFormatDialog from '@/components/ExportFormatDialog.vue'
 import { COPYRIGHT_YEAR, AUTHOR } from '@/constants/version'
+import { exportToJSON, exportToCSV } from '@/utils/importExport'
 import type { Point, CollectionInfo } from '@/api/types'
 
 const { t } = useI18n()
@@ -161,6 +205,10 @@ const pointViewData = ref<Point | null>(null)
 const pointFormVisible = ref(false)
 const pointFormMode = ref<'add' | 'edit'>('add')
 const pointFormData = ref<Point | null>(null)
+const importVisible = ref(false)
+const selectedPoints = ref<Point[]>([])
+const exportFormatVisible = ref(false)
+const pendingExportType = ref<string>('')
 
 // 加载点数据
 // Load points data
@@ -403,7 +451,12 @@ const handleSavePoint = async (point: Point) => {
 // 组件挂载时加载数据
 // Load data when component is mounted
 onMounted(() => {
-  loadCollections()
+  const connectionStore = useConnectionStore()
+  // 只有在已连接时才加载集合
+  // Only load collections when connected
+  if (connectionStore.isConnected && connectionStore.currentConfig) {
+    loadCollections()
+  }
 })
 
 // 监听分页变化
@@ -418,6 +471,242 @@ const updatePagination = (currentPage: number, pageSize: number) => {
   pointsData.value.currentPage = currentPage
   pointsData.value.pageSize = pageSize
   loadPoints()
+}
+
+// 选择变化处理
+// Handle selection change
+const handleSelectionChange = (points: Point[]) => {
+  selectedPoints.value = points
+}
+
+// 批量删除
+// Batch delete
+const handleBatchDelete = async () => {
+  if (!selectedCollection.value || selectedPoints.value.length === 0) return
+
+  try {
+    const { ElMessageBox } = await import('element-plus')
+    await ElMessageBox.confirm(
+      t('point.batchDeleteConfirm', { count: selectedPoints.value.length }),
+      t('point.batchDeleteTitle'),
+      {
+        type: 'warning',
+        confirmButtonText: t('common.delete'),
+        cancelButtonText: t('common.cancel'),
+        confirmButtonClass: 'el-button--danger'
+      }
+    )
+
+    const { deletePoints } = await import('@/api/qdrant')
+    const pointIds = selectedPoints.value.map((p) => p.id)
+    await deletePoints(selectedCollection.value, pointIds)
+    ElMessage.success(t('point.batchDeleteSuccess', { count: selectedPoints.value.length }))
+    selectedPoints.value = []
+    pointsData.value.currentPage = 1
+    pointsData.value.pageOffsets.clear()
+    pointsData.value.pageOffsets.set(1, null)
+    pointsData.value.totalPoints -= pointIds.length
+    await loadPoints()
+    await loadCollections()
+  } catch (error) {
+    if (error !== 'cancel') {
+      ElMessage.error(t('point.batchDeleteFailed'))
+    }
+  }
+}
+
+// 选择导出类型
+// Select export type
+const handleExportTypeSelect = (exportType: string) => {
+  if (!selectedCollection.value) {
+    ElMessage.warning(t('dashboard.selectCollection'))
+    return
+  }
+
+  // 保存导出类型，显示格式选择对话框
+  // Save export type and show format selection dialog
+  pendingExportType.value = exportType
+  exportFormatVisible.value = true
+}
+
+// 选择导出格式后执行导出
+// Execute export after format selection
+const handleExportFormatSelect = async (format: 'json' | 'csv') => {
+  if (!selectedCollection.value) {
+    ElMessage.warning(t('dashboard.selectCollection'))
+    return
+  }
+
+  try {
+    let pointsToExport: Point[] = []
+    const exportType = pendingExportType.value
+
+    // 根据导出类型获取数据
+    // Get data based on export type
+    switch (exportType) {
+      case 'current-page':
+        // 导出当前页
+        // Export current page
+        if (pointsData.value.points.length === 0) {
+          ElMessage.warning(t('point.noDataInCollection'))
+          return
+        }
+        pointsToExport = pointsData.value.points
+        break
+
+      case 'selected':
+        // 导出选中
+        // Export selected
+        if (selectedPoints.value.length === 0) {
+          ElMessage.warning(t('point.noPointsSelected'))
+          return
+        }
+        pointsToExport = selectedPoints.value
+        break
+
+      case 'query':
+        // 导出查询结果（当前集合的所有数据）
+        // Export query results (all data in current collection)
+        ElMessage.info(t('point.exportLoading', { type: t('point.exportQuery') }))
+        pointsToExport = await loadAllPoints()
+        break
+
+      case 'all':
+        // 导出全部（当前集合的所有数据）
+        // Export all (all data in current collection)
+        ElMessage.info(t('point.exportLoading', { type: t('point.exportAll') }))
+        pointsToExport = await loadAllPoints()
+        break
+
+      default:
+        return
+    }
+
+    if (pointsToExport.length === 0) {
+      ElMessage.warning(t('point.noDataInCollection'))
+      return
+    }
+
+    // 根据格式导出数据
+    // Export data based on format
+    const fileName = `${selectedCollection.value}_${exportType}_${new Date().getTime()}`
+    if (format === 'json') {
+      exportToJSON(pointsToExport, fileName)
+    } else if (format === 'csv') {
+      exportToCSV(pointsToExport, fileName)
+    } else {
+      ElMessage.error(t('point.exportFailed'))
+      return
+    }
+
+    ElMessage.success(t('point.exportSuccessWithCount', { count: pointsToExport.length }))
+  } catch (error) {
+    ElMessage.error(t('point.exportFailed'))
+    console.error('Export failed:', error)
+  }
+}
+
+// 加载所有点数据（用于导出全部）
+// Load all points data (for export all)
+const loadAllPoints = async (): Promise<Point[]> => {
+  if (!selectedCollection.value) return []
+
+  const allPoints: Point[] = []
+  let offset: string | number | null = null
+  const pageSize = 500 // 每次获取 500 条，避免单次请求过大
+  let hasMore = true
+  let pageCount = 0
+
+  // 显示加载提示
+  // Show loading message
+  const loadingMessage = ElMessage({
+    message: t('point.exportLoadingProgress', { current: 0, total: '...' }),
+    type: 'info',
+    duration: 0, // 不自动关闭
+    showClose: false
+  })
+
+  try {
+    while (hasMore) {
+      try {
+        // 添加小延迟，避免请求过快
+        // Add small delay to avoid requests too fast
+        if (pageCount > 0) {
+          await new Promise(resolve => setTimeout(resolve, 100))
+        }
+
+        const result = await getPoints(
+          selectedCollection.value,
+          pageSize,
+          offset,
+          true,
+          true
+        )
+
+        allPoints.push(...result.points)
+        pageCount++
+
+        // 更新进度提示
+        // Update progress message
+        loadingMessage.message = t('point.exportLoadingProgress', {
+          current: allPoints.length,
+          total: pointsData.value.totalPoints > 0 ? pointsData.value.totalPoints : '...'
+        })
+
+        // 检查是否还有更多数据
+        // Check if there's more data
+        if (result.points.length < pageSize || !result.next_page_offset) {
+          hasMore = false
+        } else {
+          offset = result.next_page_offset
+        }
+      } catch (error) {
+        loadingMessage.close()
+        console.error('Failed to load points for export:', error)
+        throw error
+      }
+    }
+
+    // 关闭加载提示
+    // Close loading message
+    loadingMessage.close()
+
+    return allPoints
+  } catch (error) {
+    loadingMessage.close()
+    throw error
+  }
+}
+
+// 导入数据
+// Import data
+const handleImport = () => {
+  if (!selectedCollection.value) {
+    ElMessage.warning(t('dashboard.selectCollection'))
+    return
+  }
+  importVisible.value = true
+}
+
+// 确认导入
+// Confirm import
+const handleImportConfirm = async (points: Point[]) => {
+  if (!selectedCollection.value || points.length === 0) return
+
+  try {
+    const { upsertPoints } = await import('@/api/qdrant')
+    await upsertPoints(selectedCollection.value, points)
+    ElMessage.success(t('point.importSuccess', { count: points.length }))
+    importVisible.value = false
+    pointsData.value.currentPage = 1
+    pointsData.value.pageOffsets.clear()
+    pointsData.value.pageOffsets.set(1, null)
+    pointsData.value.totalPoints += points.length
+    await loadPoints()
+    await loadCollections()
+  } catch (error) {
+    ElMessage.error(t('point.importFailed'))
+  }
 }
 </script>
 
