@@ -49,7 +49,7 @@ const emit = defineEmits<{
 const visible = ref(props.modelValue)
 const formData = ref({
   name: '',
-  vectorSize: 128,
+  vectorSize: 1024,
   distance: 'Cosine' as 'Cosine' | 'Euclid' | 'Dot'
 })
 
@@ -58,7 +58,7 @@ watch(() => props.modelValue, (val) => {
   if (val) {
     formData.value = {
       name: '',
-      vectorSize: 128,
+      vectorSize: 1024,
       distance: 'Cosine'
     }
   }
