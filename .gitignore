@@ -7,6 +7,7 @@ src/node_modules/
 # Build artifacts
 dist/
 build/
+.vite/
 *.local
 
 # 日志文件
