@@ -1,0 +1,11 @@
+# 忽略的文件和目录
+# Ignored files and directories
+
+node_modules/
+dist/
+build/
+coverage/
+*.min.js
+*.min.css
+.vscode/
+.idea/
