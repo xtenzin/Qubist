@@ -1,0 +1,62 @@
+# GitHub Actions Release 工作流
+# GitHub Actions Release workflow
+name: Release
+
+# 触发条件：当创建新的 Release 时
+# Trigger conditions: when a new release is created
+on:
+  release:
+    types: [created]
+
+jobs:
+  # 构建和上传 Release 文件
+  # Build and upload Release files
+  build-and-release:
+    runs-on: ubuntu-latest
+
+    steps:
+      # 检出代码
+      # Checkout code
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      # 设置 Node.js
+      # Setup Node.js
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20.x'
+          cache: 'npm'
+          cache-dependency-path: src/package-lock.json
+
+      # 安装依赖
+      # Install dependencies
+      - name: Install dependencies
+        working-directory: ./src
+        run: npm ci
+
+      # 构建项目
+      # Build project
+      - name: Build project
+        working-directory: ./src
+        run: npm run build
+
+      # 创建压缩包
+      # Create archive
+      - name: Create release archive
+        run: |
+          cd dist
+          tar -czf ../qubist-v${{ github.event.release.tag_name }}.tar.gz .
+          cd ..
+          zip -r qubist-v${{ github.event.release.tag_name }}.zip dist/
+
+      # 上传 Release 文件
+      # Upload Release files
+      - name: Upload Release assets
+        uses: softprops/action-gh-release@v1
+        with:
+          files: |
+            qubist-v${{ github.event.release.tag_name }}.tar.gz
+            qubist-v${{ github.event.release.tag_name }}.zip
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
