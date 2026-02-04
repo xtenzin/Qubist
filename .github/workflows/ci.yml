@@ -1,0 +1,70 @@
+# GitHub Actions CI 工作流
+# GitHub Actions CI workflow
+name: CI
+
+# 触发条件
+# Trigger conditions
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main, develop]
+
+jobs:
+  # 代码检查和构建
+  # Code check and build
+  build:
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        node-version: [18.x, 20.x]
+
+    steps:
+      # 检出代码
+      # Checkout code
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      # 设置 Node.js
+      # Setup Node.js
+      - name: Setup Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node-version }}
+          cache: 'npm'
+          cache-dependency-path: src/package-lock.json
+
+      # 安装依赖
+      # Install dependencies
+      - name: Install dependencies
+        working-directory: ./src
+        run: npm ci
+
+      # 运行 ESLint 检查
+      # Run ESLint check
+      - name: Run ESLint
+        working-directory: ./src
+        run: npm run lint || true
+
+      # 运行 Prettier 检查
+      # Run Prettier check
+      - name: Check code formatting
+        working-directory: ./src
+        run: npx prettier --check . || true
+
+      # 构建项目
+      # Build project
+      - name: Build project
+        working-directory: ./src
+        run: npm run build
+
+      # 上传构建产物（可选）
+      # Upload build artifacts (optional)
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v4
+        if: matrix.node-version == '20.x'
+        with:
+          name: dist
+          path: dist/
+          retention-days: 7

@@ -1,0 +1,50 @@
+# Dependabot 配置文件
+# Dependabot configuration file
+# https://docs.github.com/code-security/dependabot/dependabot-version-updates/configuration-options-for-the-dependabot.yml-file
+
+version: 2
+updates:
+  # 启用 npm 依赖更新
+  # Enable npm dependency updates
+  - package-ecosystem: "npm"
+    directory: "/src"
+    schedule:
+      # 每周一检查更新
+      # Check for updates every Monday
+      interval: "weekly"
+      day: "monday"
+      time: "09:00"
+      timezone: "Asia/Shanghai"
+    # 打开拉取请求的版本更新策略
+    # Version update strategy for opening pull requests
+    open-pull-requests-limit: 10
+    # 分组配置
+    # Grouping configuration
+    groups:
+      # 开发依赖分组
+      # Development dependencies group
+      dev-dependencies:
+        dependency-type: "development"
+        update-types:
+          - "minor"
+          - "patch"
+      # 生产依赖分组
+      # Production dependencies group
+      production-dependencies:
+        dependency-type: "production"
+        update-types:
+          - "minor"
+          - "patch"
+    # 忽略特定依赖的更新
+    # Ignore updates for specific dependencies
+    ignore:
+      # 忽略主版本更新（需要手动审查）
+      # Ignore major version updates (requires manual review)
+      - dependency-name: "*"
+        update-types: ["version-update:semver-major"]
+    # 提交信息格式
+    # Commit message format
+    commit-message:
+      prefix: "依赖更新"
+      prefix-development: "开发依赖更新"
+      include: "scope"

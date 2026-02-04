@@ -1,0 +1,28 @@
+# GitHub Releases 模板配置
+# GitHub Releases template configuration
+changelog:
+  exclude:
+    labels:
+      - ignore-for-release
+  categories:
+    - title: 新增功能 / New Features
+      labels:
+        - enhancement
+        - feature
+    - title: Bug 修复 / Bug Fixes
+      labels:
+        - bug
+        - fix
+    - title: 文档更新 / Documentation
+      labels:
+        - documentation
+        - docs
+    - title: 性能优化 / Performance
+      labels:
+        - performance
+    - title: 代码重构 / Refactoring
+      labels:
+        - refactoring
+    - title: 其他变更 / Other Changes
+      labels:
+        - "*"
