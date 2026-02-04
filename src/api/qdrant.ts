@@ -146,7 +146,13 @@ export async function updateCollection(
   }
 ): Promise<void> {
   const connectionStore = useConnectionStore()
-  await request.patch(`${connectionStore.apiUrl}/collections/${collectionName}`, params)
+  const response = await request.patch(`${connectionStore.apiUrl}/collections/${collectionName}`, params)
+  // 检查响应中是否有错误
+  // Check if there's an error in the response
+  if (response.data.status && response.data.status !== 'ok') {
+    const errorMsg = response.data.status.error || 'Failed to update collection'
+    throw new Error(errorMsg)
+  }
 }
 
 /**
