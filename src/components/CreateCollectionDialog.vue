@@ -2,10 +2,10 @@
   <el-dialog
     v-model="visible"
     :title="$t('collection.createTitle')"
-    width="500px"
+    width="600px"
     @close="handleClose"
   >
-    <el-form :model="formData" label-width="100px">
+    <el-form :model="formData" label-width="140px">
       <el-form-item :label="$t('collection.name')" required>
         <el-input v-model="formData.name" :placeholder="$t('collection.namePlaceholder')" />
       </el-form-item>
