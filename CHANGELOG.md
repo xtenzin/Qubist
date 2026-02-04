@@ -14,6 +14,33 @@ and this project adheres to [Semantic Versioning](https://semver.org/lang/en-US/
 - Batch operations functionality
 - Data import/export functionality
 
+## [0.1.1] - 2026-02-04
+
+### Added
+- Collection deletion functionality with warning dialog
+- Auto-generated point ID based on millisecond timestamp when adding points
+- Random vector generation button for quick vector creation
+- Random payload generation with predefined structure (type, timestamp, content)
+- "Fill with existing data" button for loading latest point data as template
+
+### Changed
+- Improved collection settings UI: moved "Fill with existing data" button to footer, aligned with Cancel/Save buttons
+- Enhanced collection item layout: consistent left alignment for collection name and icon, optimized action button spacing
+- Default vector dimension for new collections changed from 128 to 1024
+- Improved input validation: vector and payload validation now occurs only on save, allowing free input during editing
+
+### Fixed
+- Fixed point ID format issue: changed from string timestamp to number type (unsigned integer) for Qdrant compatibility
+- Fixed collection settings parameter loading: correctly reads indexed_threshold from Qdrant response
+- Fixed collection settings parameter saving: correctly updates indexing_threshold and reloads values after save
+- Fixed payload placeholder text: resolved Vue i18n curly brace parsing issue
+- Fixed vector and payload input: removed real-time validation interference, allowing users to input freely
+
+### Improved
+- Better error handling for collection settings updates
+- Enhanced type definitions for collection configuration
+- Improved code organization and maintainability
+
 ## [0.1.0] - 2026-02-04
 
 ### Added
