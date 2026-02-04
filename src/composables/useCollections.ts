@@ -4,6 +4,7 @@ import { ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { ElMessage } from 'element-plus'
 import { getCollections, getCollectionInfo, createCollection, deleteCollection } from '@/api/qdrant'
+import { useConnectionStore } from '@/stores/connection'
 import type { CollectionInfo } from '@/api/types'
 
 export function useCollections() {
@@ -14,6 +15,14 @@ export function useCollections() {
   // 加载集合列表
   // Load collections list
   const loadCollections = async () => {
+    // 检查连接状态
+    // Check connection status
+    const connectionStore = useConnectionStore()
+    if (!connectionStore.isConnected || !connectionStore.currentConfig) {
+      console.warn('Cannot load collections: not connected')
+      return
+    }
+
     loading.value = true
     try {
       const result = await getCollections()

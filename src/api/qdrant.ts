@@ -31,6 +31,9 @@ export async function verifyConnection(): Promise<boolean> {
  */
 export async function getCollections(): Promise<CollectionsResponse['result']['collections']> {
   const connectionStore = useConnectionStore()
+  if (!connectionStore.apiUrl) {
+    throw new Error('Not connected to Qdrant server')
+  }
   const response = await request.get<CollectionsResponse>(`${connectionStore.apiUrl}/collections`)
   return response.data.result?.collections || []
 }
