@@ -21,10 +21,23 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      # 检出代码
-      # Checkout code
+      # 获取 tag 名称
+      # Get tag name
+      - name: Get tag name
+        id: tag
+        run: |
+          if [ "${{ github.event_name }}" == "workflow_dispatch" ]; then
+            echo "tag=${{ github.event.inputs.tag }}" >> $GITHUB_OUTPUT
+          else
+            echo "tag=${{ github.event.release.tag_name }}" >> $GITHUB_OUTPUT
+          fi
+
+      # 检出代码（手动触发时检出对应的 tag）
+      # Checkout code (checkout corresponding tag when manually triggered)
       - name: Checkout code
         uses: actions/checkout@v4
+        with:
+          ref: ${{ steps.tag.outputs.tag }}
 
       # 设置 Node.js
       # Setup Node.js
@@ -47,19 +60,8 @@ jobs:
         working-directory: ./src
         run: npm run build
 
-      # 获取 tag 名称
-      # Get tag name
-      - name: Get tag name
-        id: tag
-        run: |
-          if [ "${{ github.event_name }}" == "workflow_dispatch" ]; then
-            echo "tag=${{ github.event.inputs.tag }}" >> $GITHUB_OUTPUT
-          else
-            echo "tag=${{ github.event.release.tag_name }}" >> $GITHUB_OUTPUT
-          fi
-
       # 创建压缩包
-      # Create archive
+      # Create release archive
       - name: Create release archive
         run: |
           cd dist
@@ -67,26 +69,14 @@ jobs:
           cd ..
           zip -r qubist-${{ steps.tag.outputs.tag }}.zip dist/
 
-      # 上传 Release 文件
-      # Upload Release files
+      # 上传 Release 文件（支持手动触发和 Release 事件）
+      # Upload Release files (supports both manual trigger and release events)
       - name: Upload Release assets
-        if: github.event_name != 'workflow_dispatch'
         uses: softprops/action-gh-release@v1
         with:
+          tag_name: ${{ steps.tag.outputs.tag }}
           files: |
             qubist-${{ steps.tag.outputs.tag }}.tar.gz
             qubist-${{ steps.tag.outputs.tag }}.zip
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      
-      # 手动触发时上传到 Artifacts
-      # Upload to Artifacts when manually triggered
-      - name: Upload artifacts (manual trigger)
-        if: github.event_name == 'workflow_dispatch'
-        uses: actions/upload-artifact@v4
-        with:
-          name: release-${{ steps.tag.outputs.tag }}
-          files: |
-            qubist-${{ steps.tag.outputs.tag }}.tar.gz
-            qubist-${{ steps.tag.outputs.tag }}.zip
-          retention-days: 30
