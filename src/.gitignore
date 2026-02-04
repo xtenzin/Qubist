@@ -31,3 +31,7 @@ coverage/
 # Build artifacts (if building to src directory)
 dist/
 build/
+
+# 依赖目录
+# Dependencies directory
+node_modules/

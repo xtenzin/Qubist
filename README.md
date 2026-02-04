@@ -47,6 +47,13 @@ Qubist is a web-based management interface for Qdrant vector database, designed 
 - Responsive layout
 - Intuitive user experience
 
+### Internationalization
+- Support for Simplified Chinese (zh-CN) and English (en-US)
+- Automatic browser language detection
+- Manual language switching via language switcher
+- Language preference saved in browser localStorage
+- Both login page and main interface support multi-language
+
 ## Technology Stack
 
 ### Core Framework
@@ -66,6 +73,9 @@ Qubist is a web-based management interface for Qdrant vector database, designed 
 ### Routing Management
 - **Vue Router**: Official router for Vue.js, supporting route guards and navigation
 
+### Internationalization
+- **vue-i18n**: Vue.js internationalization plugin for multi-language support
+
 ### Code Quality
 - **ESLint**: Code linting tool for maintaining code quality
 - **Prettier**: Code formatter for consistent code style
@@ -80,6 +90,8 @@ Qubist/
 │   ├── views/             # Page views
 │   ├── stores/            # State management (Pinia)
 │   ├── router/            # Route configuration
+│   ├── i18n/              # Internationalization configuration
+│   ├── locales/           # Language files (zh-CN, en-US)
 │   ├── utils/             # Utility functions
 │   ├── index.html         # Entry HTML file
 │   ├── package.json       # Project configuration

@@ -108,6 +108,15 @@ Qubist is a Qdrant vector database web management tool developed based on Vue 3 
 - Use Element Plus component library
 - Unified UI style and interaction experience
 
+#### 4.4 Internationalization Support
+- Support Simplified Chinese (zh-CN) and English (en-US)
+- Automatically detect browser language and apply corresponding language
+- Users can manually switch language via language switcher
+- Language selection saved in browser localStorage, automatically applied on next visit
+- Both login page and main interface support multi-language switching
+- Element Plus component library language synchronized with app language
+- All interface texts support multi-language display
+
 ### 5. API Integration Module
 
 #### 5.1 Qdrant REST API Encapsulation
@@ -196,6 +205,9 @@ Qubist is a Qdrant vector database web management tool developed based on Vue 3 
 ### Routing Management
 - **Vue Router**: Official router for Vue.js
 
+### Internationalization
+- **vue-i18n**: Vue.js internationalization plugin, supporting multi-language switching
+
 ### Code Standards
 - **ESLint**: Code linting tool
 - **Prettier**: Code formatting tool
@@ -218,9 +230,20 @@ Qubist/
 │   │   ├── Login.vue            # Login page
 │   │   └── Dashboard.vue        # Main interface
 │   ├── stores/                   # State management
-│   │   └── connection.ts        # Connection state management
+│   │   ├── connection.ts        # Connection state management
+│   │   └── locale.ts            # Locale settings state management
 │   ├── router/                   # Route configuration
 │   │   └── index.ts             # Route definitions
+│   ├── i18n/                     # Internationalization configuration
+│   │   └── index.ts             # i18n configuration file
+│   ├── locales/                  # Language files
+│   │   ├── zh-CN/               # Simplified Chinese language pack
+│   │   │   └── index.ts
+│   │   └── en-US/               # English language pack
+│   │       └── index.ts
+│   ├── components/               # Components directory
+│   │   ├── LocaleSwitcher.vue   # Language switcher component
+│   │   └── ...                  # Other components
 │   ├── utils/                    # Utility functions
 │   │   ├── request.ts           # Axios encapsulation
 │   │   └── validation.ts        # Data validation tools

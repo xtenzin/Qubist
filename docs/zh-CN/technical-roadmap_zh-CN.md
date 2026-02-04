@@ -108,6 +108,15 @@ Qubist 是一个基于 Vue 3 + TypeScript 开发的 Qdrant 向量数据库 Web �
 - 使用 Element Plus 组件库
 - 统一的 UI 风格和交互体验
 
+#### 4.4 多语种支持
+- 支持简体中文（zh-CN）和英文（en-US）
+- 自动检测浏览器语言并应用对应语言
+- 用户可通过语言切换器手动切换语言
+- 语言选择保存在浏览器 localStorage，下次打开自动应用
+- 登录页面和主界面均支持多语种切换
+- Element Plus 组件库语言同步切换
+- 所有界面文本均支持多语种显示
+
 ### 5. API 集成模块
 
 #### 5.1 Qdrant REST API 封装
@@ -196,6 +205,9 @@ Qubist 是一个基于 Vue 3 + TypeScript 开发的 Qdrant 向量数据库 Web �
 ### 路由管理
 - **Vue Router**：Vue.js 官方路由管理器
 
+### 国际化
+- **vue-i18n**：Vue.js 国际化插件，支持多语种切换
+
 ### 代码规范
 - **ESLint**：代码检查工具
 - **Prettier**：代码格式化工具
@@ -218,9 +230,20 @@ Qubist/
 │   │   ├── Login.vue            # 登录页
 │   │   └── Dashboard.vue        # 主界面
 │   ├── stores/                   # 状态管理
-│   │   └── connection.ts        # 连接状态管理
+│   │   ├── connection.ts        # 连接状态管理
+│   │   └── locale.ts            # 语言设置状态管理
 │   ├── router/                   # 路由配置
 │   │   └── index.ts             # 路由定义
+│   ├── i18n/                     # 国际化配置
+│   │   └── index.ts             # i18n 配置文件
+│   ├── locales/                  # 语言文件
+│   │   ├── zh-CN/               # 简体中文语言包
+│   │   │   └── index.ts
+│   │   └── en-US/               # 英文语言包
+│   │       └── index.ts
+│   ├── components/               # 组件目录
+│   │   ├── LocaleSwitcher.vue   # 语言切换器组件
+│   │   └── ...                  # 其他组件
 │   ├── utils/                    # 工具函数
 │   │   ├── request.ts           # Axios 封装
 │   │   └── validation.ts        # 数据验证工具
