@@ -2,7 +2,7 @@
 // Qdrant collection information
 export interface CollectionInfo {
   config: {
-    params: {
+    params?: {
       vectors: {
         size: number
         distance: string
@@ -11,13 +11,22 @@ export interface CollectionInfo {
         m: number
         ef_construct: number
       }
+      optimizer_config?: {
+        indexed_threshold?: number
+        indexing_threshold?: number
+        flush_interval_sec?: number
+        max_optimization_threads?: number
+      }
     }
     hnsw_config?: {
       m: number
       ef_construct: number
     }
     optimizer_config?: {
-      indexed_threshold: number
+      indexed_threshold?: number
+      indexing_threshold?: number
+      flush_interval_sec?: number
+      max_optimization_threads?: number
     }
     wal_config?: {
       wal_capacity_mb: number
