@@ -53,7 +53,6 @@ Qubist is a Qdrant vector database web management tool developed based on Vue 3 
   - ID (with copy support)
   - Vector information (with copy support, ellipsis for overflow)
   - Payload information (with copy support, ellipsis for overflow)
-- Show full content on mouse hover
 - Table loading state indicator
 
 #### 3.2 Data Viewing Functionality
