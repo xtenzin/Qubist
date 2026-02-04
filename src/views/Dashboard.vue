@@ -16,6 +16,7 @@
         @select="handleSelectCollection"
         @show-info="handleShowCollectionInfo"
         @show-settings="handleShowCollectionSettings"
+        @delete="handleDeleteCollection"
       />
 
       <!-- 右侧数据展示 -->
@@ -95,6 +96,7 @@
       v-model="pointFormVisible"
       :mode="pointFormMode"
       :point-data="pointFormData"
+      :collection-name="selectedCollection"
       @save="handleSavePoint"
       @load-latest="handleLoadLatestPoint"
     />
@@ -253,6 +255,43 @@ const handleShowCollectionInfo = async (collectionName: string) => {
 const handleShowCollectionSettings = (collectionName: string) => {
   selectedCollectionForSettings.value = collectionName
   collectionSettingsVisible.value = true
+}
+
+// 删除集合
+// Delete collection
+const handleDeleteCollection = async (collectionName: string) => {
+  try {
+    const { ElMessageBox } = await import('element-plus')
+    await ElMessageBox.confirm(
+      t('collection.deleteConfirm') + '\n\n' + t('collection.deleteWarning'),
+      t('collection.deleteTitle'),
+      {
+        type: 'warning',
+        confirmButtonText: t('common.delete'),
+        cancelButtonText: t('common.cancel'),
+        confirmButtonClass: 'el-button--danger'
+      }
+    )
+    
+    const { deleteCollection } = await import('@/api/qdrant')
+    await deleteCollection(collectionName)
+    ElMessage.success(t('collection.deleteSuccess'))
+    
+    // 如果删除的是当前选中的集合，清除选中状态
+    // If deleted collection is currently selected, clear selection
+    if (selectedCollection.value === collectionName) {
+      selectedCollection.value = null
+      pointsData.value.currentPage = 1
+      pointsData.value.pageOffsets.clear()
+      pointsData.value.pageOffsets.set(1, null)
+    }
+    
+    await loadCollections()
+  } catch (error) {
+    if (error !== 'cancel') {
+      ElMessage.error(t('collection.deleteFailed'))
+    }
+  }
 }
 
 // 集合设置保存后

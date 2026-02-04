@@ -16,6 +16,7 @@
     <div class="collection-actions" @click.stop>
       <el-button text :icon="InfoFilled" @click="$emit('show-info', collection.name)" class="action-button" />
       <el-button text :icon="Setting" @click="$emit('show-settings', collection.name)" class="action-button" />
+      <el-button text :icon="Delete" @click="$emit('delete', collection.name)" class="action-button delete-button" />
     </div>
   </div>
 </template>
@@ -24,7 +25,7 @@
 // 集合项组件
 // Collection item component
 import { useI18n } from 'vue-i18n'
-import { Coin, InfoFilled, Setting } from '@element-plus/icons-vue'
+import { Coin, InfoFilled, Setting, Delete } from '@element-plus/icons-vue'
 
 const { t } = useI18n()
 
@@ -40,6 +41,7 @@ defineEmits<{
   select: [name: string]
   'show-info': [name: string]
   'show-settings': [name: string]
+  delete: [name: string]
 }>()
 </script>
 
@@ -53,6 +55,7 @@ defineEmits<{
   cursor: pointer;
   transition: all 0.2s;
   margin-bottom: 4px;
+  justify-content: flex-start;
 }
 
 .collection-item:hover {
@@ -72,6 +75,7 @@ defineEmits<{
   justify-content: center;
   border-radius: 8px;
   color: #1890ff;
+  flex-shrink: 0;
 }
 
 .collection-item.active .collection-icon {
@@ -80,24 +84,31 @@ defineEmits<{
 
 .collection-info {
   flex: 1;
+  min-width: 0;
+  text-align: left;
 }
 
 .collection-name {
   font-weight: 500;
   color: #1a1a1a;
   margin-bottom: 4px;
+  text-align: left;
 }
 
 .collection-meta {
   font-size: 12px;
   color: #909399;
+  text-align: left;
 }
 
 .collection-actions {
   display: flex;
-  gap: 4px;
+  gap: 0;
   opacity: 0;
   transition: opacity 0.2s;
+  align-items: center;
+  flex-shrink: 0;
+  margin-left: auto;
 }
 
 .collection-item:hover .collection-actions {
@@ -106,9 +117,17 @@ defineEmits<{
 
 .action-button {
   background: transparent !important;
+  padding: 4px !important;
+  margin: 0 !important;
+  min-width: auto !important;
+  width: auto !important;
 }
 
 .action-button:hover {
   color: #409eff !important;
+}
+
+.delete-button:hover {
+  color: #f56c6c !important;
 }
 </style>

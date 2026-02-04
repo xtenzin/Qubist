@@ -16,6 +16,7 @@
         @select="$emit('select', $event)"
         @show-info="$emit('show-info', $event)"
         @show-settings="$emit('show-settings', $event)"
+        @delete="$emit('delete', $event)"
       />
       <el-empty v-if="collections.length === 0" :description="$t('collection.noCollections')" :image-size="80" />
     </div>
@@ -44,6 +45,7 @@ defineEmits<{
   select: [name: string]
   'show-info': [name: string]
   'show-settings': [name: string]
+  delete: [name: string]
 }>()
 </script>
 
