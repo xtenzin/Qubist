@@ -48,8 +48,8 @@ If applicable, add screenshots to help explain your problem.
   [e.g. 18.17.0]
 - **Qdrant 版本 / Qdrant Version**: [例如: 1.7.0]
   [e.g. 1.7.0]
-- **项目版本 / Project Version**: [例如: 0.1.0]
-  [e.g. 0.1.0]
+- **项目版本 / Project Version**: [例如: 0.1.1]
+  [e.g. 0.1.1]
 
 ## 附加信息 / Additional Context
 

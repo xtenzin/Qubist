@@ -58,3 +58,4 @@ desktop.ini
 # Git related
 .git/
 .gitignore.bak
+.gitee/
