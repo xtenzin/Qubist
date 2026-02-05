@@ -180,3 +180,48 @@ export async function search(
   )
   return response.data.result || []
 }
+
+/**
+ * 创建 payload 索引
+ * Create payload index
+ */
+export async function createPayloadIndex(
+  collectionName: string,
+  fieldName: string,
+  fieldSchema?: { type?: string; [key: string]: any }
+): Promise<void> {
+  const connectionStore = useConnectionStore()
+  const payload: any = {
+    field_name: fieldName
+  }
+  if (fieldSchema) {
+    payload.field_schema = fieldSchema
+  }
+  await request.put(`${connectionStore.apiUrl}/collections/${collectionName}/index`, payload)
+}
+
+/**
+ * 删除 payload 索引
+ * Delete payload index
+ */
+export async function deletePayloadIndex(collectionName: string, fieldName: string): Promise<void> {
+  const connectionStore = useConnectionStore()
+  await request.delete(`${connectionStore.apiUrl}/collections/${collectionName}/index/${fieldName}`)
+}
+
+/**
+ * 统计集合中的点数
+ * Count points in collection
+ */
+export async function countPoints(
+  collectionName: string,
+  filter?: any
+): Promise<number> {
+  const connectionStore = useConnectionStore()
+  const requestBody = filter ? { filter } : {}
+  const response = await request.post<{ status: string; result: { count: number } | null; time: number }>(
+    `${connectionStore.apiUrl}/collections/${collectionName}/points/count`,
+    requestBody
+  )
+  return response.data.result?.count || 0
+}
