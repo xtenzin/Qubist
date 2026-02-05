@@ -59,9 +59,23 @@ export async function getPoints(
   limit: number = 10,
   offset: number | string | null = null,
   withPayload: boolean = true,
-  withVector: boolean = false
+  withVector: boolean = false,
+  orderBy?: { key: string; direction?: 'asc' | 'desc' } | null
 ): Promise<{ points: Point[]; next_page_offset: string | null }> {
   const connectionStore = useConnectionStore()
+  const requestBody: any = {
+    limit,
+    offset,
+    with_payload: withPayload,
+    with_vector: withVector
+  }
+  
+  // 如果指定了排序，添加 order_by 参数
+  // If sorting is specified, add order_by parameter
+  if (orderBy) {
+    requestBody.order_by = orderBy
+  }
+  
   const response = await request.post<{
     status: string
     result: {
@@ -71,12 +85,7 @@ export async function getPoints(
     time: number
   }>(
     `${connectionStore.apiUrl}/collections/${collectionName}/points/scroll`,
-    {
-      limit,
-      offset,
-      with_payload: withPayload,
-      with_vector: withVector
-    }
+    requestBody
   )
   const result = response.data.result
   return {
