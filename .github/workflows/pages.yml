@@ -53,12 +53,13 @@ jobs:
         working-directory: ./src
         run: npm ci
 
-      # 构建项目（设置 NODE_ENV 为 production 以使用正确的 base 路径）
-      # Build project (set NODE_ENV to production to use correct base path)
+      # 构建项目（设置 VITE_BASE_PATH 为 /Qubist/ 以适配 GitHub Pages 路径）
+      # Build project (set VITE_BASE_PATH to /Qubist/ to match GitHub Pages path)
       - name: Build project
         working-directory: ./src
         env:
           NODE_ENV: production
+          VITE_BASE_PATH: '/Qubist/'
         run: npm run build
 
       # 验证构建产物
