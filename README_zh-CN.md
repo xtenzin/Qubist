@@ -4,14 +4,14 @@
 
 [![CI](https://github.com/xtenzin/Qubist/actions/workflows/ci.yml/badge.svg)](https://github.com/xtenzin/Qubist/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![Version](https://img.shields.io/badge/version-0.2.0-blue.svg)](https://github.com/xtenzin/Qubist)
+[![Version](https://img.shields.io/badge/version-0.2.2-blue.svg)](https://github.com/xtenzin/Qubist)
 [![Node.js](https://img.shields.io/badge/Node.js-18.x%20%7C%2020.x-green.svg)](https://nodejs.org/)
 
 基于 Vue 3 + TypeScript 开发的 Qdrant 向量数据库 Web 管理工具，提供比官方界面更友好的数据管理方案。
 
 ## 版本
 
-**当前版本**: 0.2.0
+**当前版本**: 0.2.2
 
 ## 版权
 

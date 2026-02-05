@@ -4,14 +4,14 @@
 
 [![CI](https://github.com/xtenzin/Qubist/actions/workflows/ci.yml/badge.svg)](https://github.com/xtenzin/Qubist/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![Version](https://img.shields.io/badge/version-0.2.0-blue.svg)](https://github.com/xtenzin/Qubist)
+[![Version](https://img.shields.io/badge/version-0.2.2-blue.svg)](https://github.com/xtenzin/Qubist)
 [![Node.js](https://img.shields.io/badge/Node.js-18.x%20%7C%2020.x-green.svg)](https://nodejs.org/)
 
 A Qdrant vector database web management tool developed with Vue 3 + TypeScript, providing a more user-friendly data management solution than the official interface.
 
 ## Version
 
-**Current Version**: 0.2.0
+**Current Version**: 0.2.2
 
 ## Copyright
 
