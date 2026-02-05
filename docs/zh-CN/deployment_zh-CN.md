@@ -48,9 +48,28 @@ GitHub Pages 提供了最简单的部署方式，无需服务器配置，每次�
    - 部署成功后，在仓库的 Settings → Pages 可以看到部署地址
 
 **注意事项**：
-- 使用 GitHub Pages 时，需要确保 Qdrant 服务器可以从互联网访问
-- 如果 Qdrant 服务器在本地或内网，建议使用其他部署方式
-- GitHub Pages 有构建时间限制，大型项目可能需要优化构建时间
+
+- **安全与隐私**：
+  - Qubist 是纯前端应用，所有数据处理在浏览器中完成
+  - API 密钥和连接信息仅保存在浏览器 localStorage 中，不会发送到第三方服务器
+  - 您的 Qdrant 服务器凭证完全私密，不会传输到我们的服务器
+
+- **CORS 与混合内容**：
+  - GitHub Pages 部署在 HTTPS（`https://xtenzin.github.io`）
+  - 如果连接本地 Qdrant（`http://localhost:6333`），可能遇到 CORS 或混合内容问题
+  - **解决方案**：在 Qdrant 配置中启用 CORS：
+    ```yaml
+    service:
+      enable_cors: true
+      cors_allow_origins:
+        - "https://xtenzin.github.io"
+    ```
+  - 或使用可通过 HTTPS 从互联网访问的 Qdrant 服务器
+
+- **使用建议**：
+  - GitHub Pages 版本适合测试和演示
+  - 生产环境或处理敏感数据时，建议使用其他部署方式
+  - GitHub Pages 有构建时间限制，大型项目可能需要优化构建时间
 
 ### 方式二：使用 Nginx（推荐用于生产环境）
 

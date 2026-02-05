@@ -166,7 +166,27 @@ You can use Qubist directly online without installation. The latest version is a
 
 **🌐 Online Demo**: [https://xtenzin.github.io/Qubist/](https://xtenzin.github.io/Qubist/)
 
-> **Note**: To use the online version, you need to ensure your Qdrant server is accessible from the internet, or use a Qdrant server that allows CORS requests. For security reasons, it's recommended to use the online version only for testing or with trusted Qdrant instances.
+#### Important Notes
+
+**🔒 Security & Privacy**
+- Qubist is a pure frontend application. All data processing happens in your browser.
+- API keys and connection information are stored only in your browser's localStorage and never sent to any third-party servers.
+- Your Qdrant server credentials remain completely private and are never transmitted to our servers.
+
+**🌐 CORS & Mixed Content**
+- The online demo runs on HTTPS (`https://xtenzin.github.io`). If you're connecting to a local Qdrant server (`http://localhost:6333`), you may encounter CORS or mixed content issues.
+- **Solution**: Configure your local Qdrant server to allow cross-origin requests. Add the following to your Qdrant configuration:
+  ```yaml
+  service:
+    enable_cors: true
+    cors_allow_origins:
+      - "https://xtenzin.github.io"
+  ```
+- Alternatively, use a Qdrant server that is accessible over HTTPS from the internet.
+
+**⚠️ Recommended Usage**
+- The online demo is best suited for testing and demonstration purposes.
+- For production use or when working with sensitive data, consider deploying Qubist locally or on your own server.
 
 ### Local Installation
 

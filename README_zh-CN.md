@@ -166,7 +166,27 @@ Qubist/
 
 **🌐 在线演示**: [https://xtenzin.github.io/Qubist/](https://xtenzin.github.io/Qubist/)
 
-> **注意**：使用在线版本时，需要确保您的 Qdrant 服务器可以从互联网访问，或使用允许 CORS 请求的 Qdrant 服务器。出于安全考虑，建议仅将在线版本用于测试或与受信任的 Qdrant 实例一起使用。
+#### 重要提示
+
+**🔒 安全与隐私**
+- Qubist 是一个纯前端应用，所有数据处理都在您的浏览器中完成。
+- API 密钥和连接信息仅保存在浏览器的 localStorage 中，不会发送到任何第三方服务器。
+- 您的 Qdrant 服务器凭证完全私密，不会传输到我们的服务器。
+
+**🌐 CORS 与混合内容**
+- 在线演示运行在 HTTPS（`https://xtenzin.github.io`）。如果您连接的是本地 Qdrant 服务器（`http://localhost:6333`），可能会遇到 CORS 或混合内容问题。
+- **解决方案**：配置您的本地 Qdrant 服务器允许跨域请求。在 Qdrant 配置文件中添加以下内容：
+  ```yaml
+  service:
+    enable_cors: true
+    cors_allow_origins:
+      - "https://xtenzin.github.io"
+  ```
+- 或者使用可通过 HTTPS 从互联网访问的 Qdrant 服务器。
+
+**⚠️ 使用建议**
+- 在线演示最适合用于测试和演示目的。
+- 生产环境或处理敏感数据时，建议在本地或自己的服务器上部署 Qubist。
 
 ### 本地安装
 

@@ -45,9 +45,28 @@ GitHub Pages provides the simplest deployment method, requiring no server config
    - After successful deployment, see deployment URL in repository Settings → Pages
 
 **Notes**:
-- When using GitHub Pages, ensure Qdrant server is accessible from the internet
-- If Qdrant server is local or internal network, consider using other deployment methods
-- GitHub Pages has build time limits, large projects may need build optimization
+
+- **Security & Privacy**:
+  - Qubist is a pure frontend application, all data processing happens in the browser
+  - API keys and connection information are stored only in browser localStorage, never sent to third-party servers
+  - Your Qdrant server credentials remain completely private and are never transmitted to our servers
+
+- **CORS & Mixed Content**:
+  - GitHub Pages deployment runs on HTTPS (`https://xtenzin.github.io`)
+  - If connecting to a local Qdrant server (`http://localhost:6333`), you may encounter CORS or mixed content issues
+  - **Solution**: Enable CORS in Qdrant configuration:
+    ```yaml
+    service:
+      enable_cors: true
+      cors_allow_origins:
+        - "https://xtenzin.github.io"
+    ```
+  - Or use a Qdrant server accessible over HTTPS from the internet
+
+- **Usage Recommendations**:
+  - GitHub Pages version is suitable for testing and demonstration
+  - For production use or when handling sensitive data, consider using other deployment methods
+  - GitHub Pages has build time limits, large projects may need build optimization
 
 ### Method 2: Using Nginx (Recommended for Production)
 
