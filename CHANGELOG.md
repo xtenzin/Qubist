@@ -13,6 +13,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/lang/en-US/
 - Vector similarity search functionality
 - Data statistics functionality
 
+## [0.2.1] - 2026-02-04
+
+### Added
+- Index management functionality: Added index management TAB page in collection settings dialog
+- Index list display: Display all payload indexes for current collection, including field name, field schema, and points count
+- Create index functionality: Support creating payload indexes with selectable field types (keyword, integer, float, uuid, datetime, text, geo, bool)
+- Delete index functionality: Support deleting payload indexes with confirmation dialog
+- Index points count display: Read and display points count for each index field directly from payload_schema
+
+### Improved
+- Improved collection settings interface: Added index management TAB for convenient management of collection index fields
+- Optimized index management experience: Auto-load index list, auto-refresh after create/delete operations
+
 ## [0.2.0] - 2026-02-04
 
 ### Added
