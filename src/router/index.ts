@@ -28,8 +28,12 @@ const routes: RouteRecordRaw[] = [
   }
 ]
 
+// 使用环境变量设置 base 路径，与 Vite 配置保持一致
+// Use environment variable to set base path, consistent with Vite configuration
+const base = import.meta.env.BASE_URL
+
 const router = createRouter({
-  history: createWebHistory(),
+  history: createWebHistory(base),
   routes
 })
 
