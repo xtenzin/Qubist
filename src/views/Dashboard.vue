@@ -68,6 +68,34 @@
             </div>
           </div>
           <div class="panel-content">
+            <!-- 排序选择器 -->
+            <!-- Sort selector -->
+            <div class="sort-controls">
+              <el-select
+                v-model="sortField"
+                :placeholder="$t('point.sortBy')"
+                class="sort-field-select"
+                clearable
+                @change="handleSortChange"
+              >
+                <el-option :label="$t('point.noSort')" value="" />
+                <el-option
+                  v-for="field in availableSortFields"
+                  :key="field"
+                  :label="field"
+                  :value="field"
+                />
+              </el-select>
+              <el-select
+                v-if="sortField"
+                v-model="sortDirection"
+                class="sort-direction-select"
+                @change="handleSortChange"
+              >
+                <el-option :label="$t('point.sortAsc')" value="asc" />
+                <el-option :label="$t('point.sortDesc')" value="desc" />
+              </el-select>
+            </div>
             <PointsTable
               :points="pointsData.points"
               :loading="pointsData.loading"
@@ -152,10 +180,10 @@
 <script setup lang="ts">
 // 主界面组件
 // Main dashboard component
-import { ref, computed, onMounted } from 'vue'
+import { ref, onMounted } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { ElMessage } from 'element-plus'
-import { Refresh, Plus, Coin, Delete, Download, Upload, ArrowDown, Document, DocumentCopy } from '@element-plus/icons-vue'
+import { Refresh, Plus, Coin, Delete, Download, Upload, ArrowDown } from '@element-plus/icons-vue'
 import { getPoints, getCollectionInfo } from '@/api/qdrant'
 import { useCollections } from '@/composables/useCollections'
 import { useConnectionStore } from '@/stores/connection'
@@ -180,7 +208,7 @@ const { t } = useI18n()
 const copyrightYear = COPYRIGHT_YEAR
 const author = AUTHOR
 
-const { collections, loading: collectionsLoading, loadCollections, handleCreateCollection: createCollection } = useCollections()
+const { collections, loadCollections, handleCreateCollection: createCollection } = useCollections()
 
 const selectedCollection = ref<string | null>(null)
 const pointsData = ref({
@@ -210,6 +238,12 @@ const selectedPoints = ref<Point[]>([])
 const exportFormatVisible = ref(false)
 const pendingExportType = ref<string>('')
 
+// 排序相关状态
+// Sort related state
+const sortField = ref<string>('')
+const sortDirection = ref<'asc' | 'desc'>('asc')
+const availableSortFields = ref<string[]>([])
+
 // 加载点数据
 // Load points data
 const loadPoints = async () => {
@@ -218,12 +252,26 @@ const loadPoints = async () => {
   pointsData.value.loading = true
   try {
     const offset = pointsData.value.pageOffsets.get(pointsData.value.currentPage) || null
+    
+    // 构建排序参数
+    // Build sort parameter
+    // 只支持 payload 字段的 Range index 排序
+    // Only support Range index sorting for payload fields
+    let orderBy: { key: string; direction?: 'asc' | 'desc' } | null = null
+    if (sortField.value) {
+      orderBy = {
+        key: sortField.value,
+        direction: sortDirection.value
+      }
+    }
+    
     const result = await getPoints(
       selectedCollection.value,
       pointsData.value.pageSize,
       offset,
       true,
-      true
+      true,
+      orderBy
     )
     pointsData.value.points = result.points
 
@@ -241,6 +289,12 @@ const loadPoints = async () => {
     } catch (error) {
       console.error('Failed to get collection info for points count:', error)
     }
+    
+    // 加载可用排序字段（如果还没有加载）
+    // Load available sort fields (if not loaded yet)
+    if (availableSortFields.value.length === 0) {
+      await loadAvailableSortFields()
+    }
   } catch (error) {
     console.error('Failed to load points:', error)
     ElMessage.error(t('point.loadFailed'))
@@ -256,7 +310,61 @@ const handleSelectCollection = async (collectionName: string) => {
   pointsData.value.currentPage = 1
   pointsData.value.pageOffsets.clear()
   pointsData.value.pageOffsets.set(1, null)
+  // 重置排序
+  // Reset sorting
+  sortField.value = ''
+  sortDirection.value = 'asc'
   await loadPoints()
+  // 加载可用排序字段
+  // Load available sort fields
+  await loadAvailableSortFields()
+}
+
+// 加载可用排序字段
+// Load available sort fields
+const loadAvailableSortFields = async () => {
+  if (!selectedCollection.value) return
+  
+  try {
+    const collectionInfo = await getCollectionInfo(selectedCollection.value)
+    const fields: string[] = []
+    
+    // 只从 payload_schema 中获取支持排序的字段（Range index）
+    // Only get fields from payload_schema that support sorting (Range index)
+    // 只有 integer, float, datetime 类型支持排序（Range index）
+    // Only integer, float, datetime types support sorting (Range index)
+    const payloadSchema = (collectionInfo as any).payload_schema || {}
+    Object.keys(payloadSchema).forEach(fieldName => {
+      const fieldInfo = payloadSchema[fieldName]
+      const dataType = fieldInfo.data_type || fieldInfo.type || ''
+      
+      // 检查是否为支持排序的类型（Range index）
+      // Check if it's a type that supports sorting (Range index)
+      if (dataType === 'integer' || dataType === 'float' || dataType === 'datetime') {
+        fields.push(fieldName)
+      }
+    })
+    
+    availableSortFields.value = fields.sort()
+  } catch (error) {
+    console.error('Failed to load available sort fields:', error)
+    // 如果加载失败，设置为空数组
+    // If loading fails, set to empty array
+    availableSortFields.value = []
+  }
+}
+
+// 排序变化处理
+// Handle sort change
+const handleSortChange = () => {
+  // 重置分页
+  // Reset pagination
+  pointsData.value.currentPage = 1
+  pointsData.value.pageOffsets.clear()
+  pointsData.value.pageOffsets.set(1, null)
+  // 重新加载数据
+  // Reload data
+  loadPoints()
 }
 
 // 刷新
@@ -465,13 +573,6 @@ const handlePageChange = () => {
   loadPoints()
 }
 
-// 更新分页数据
-// Update pagination data
-const updatePagination = (currentPage: number, pageSize: number) => {
-  pointsData.value.currentPage = currentPage
-  pointsData.value.pageSize = pageSize
-  loadPoints()
-}
 
 // 选择变化处理
 // Handle selection change
@@ -617,14 +718,21 @@ const loadAllPoints = async (): Promise<Point[]> => {
   let hasMore = true
   let pageCount = 0
 
+  // 构建排序参数（与当前排序设置一致）
+  // Build sort parameter (consistent with current sort settings)
+  // 只支持 payload 字段的 Range index 排序
+  // Only support Range index sorting for payload fields
+  let orderBy: { key: string; direction?: 'asc' | 'desc' } | null = null
+  if (sortField.value) {
+    orderBy = {
+      key: sortField.value,
+      direction: sortDirection.value
+    }
+  }
+
   // 显示加载提示
   // Show loading message
-  const loadingMessage = ElMessage({
-    message: t('point.exportLoadingProgress', { current: 0, total: '...' }),
-    type: 'info',
-    duration: 0, // 不自动关闭
-    showClose: false
-  })
+  let loadingMessage: any = null
 
   try {
     while (hasMore) {
@@ -640,7 +748,8 @@ const loadAllPoints = async (): Promise<Point[]> => {
           pageSize,
           offset,
           true,
-          true
+          true,
+          orderBy
         )
 
         allPoints.push(...result.points)
@@ -648,9 +757,17 @@ const loadAllPoints = async (): Promise<Point[]> => {
 
         // 更新进度提示
         // Update progress message
-        loadingMessage.message = t('point.exportLoadingProgress', {
-          current: allPoints.length,
-          total: pointsData.value.totalPoints > 0 ? pointsData.value.totalPoints : '...'
+        if (loadingMessage) {
+          loadingMessage.close()
+        }
+        loadingMessage = ElMessage({
+          message: t('point.exportLoadingProgress', {
+            current: allPoints.length,
+            total: pointsData.value.totalPoints > 0 ? pointsData.value.totalPoints : '...'
+          }),
+          type: 'info',
+          duration: 0, // 不自动关闭
+          showClose: false
         })
 
         // 检查是否还有更多数据
@@ -661,7 +778,9 @@ const loadAllPoints = async (): Promise<Point[]> => {
           offset = result.next_page_offset
         }
       } catch (error) {
-        loadingMessage.close()
+        if (loadingMessage) {
+          loadingMessage.close()
+        }
         console.error('Failed to load points for export:', error)
         throw error
       }
@@ -669,11 +788,15 @@ const loadAllPoints = async (): Promise<Point[]> => {
 
     // 关闭加载提示
     // Close loading message
-    loadingMessage.close()
+    if (loadingMessage) {
+      loadingMessage.close()
+    }
 
     return allPoints
   } catch (error) {
-    loadingMessage.close()
+    if (loadingMessage) {
+      loadingMessage.close()
+    }
     throw error
   }
 }
@@ -767,6 +890,26 @@ const handleImportConfirm = async (points: Point[]) => {
   flex: 1;
   overflow-y: auto;
   padding: 16px 24px;
+}
+
+.sort-controls {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  margin-bottom: 16px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid #e4e7ed;
+  gap: 8px;
+}
+
+.sort-field-select {
+  width: fit-content;
+  min-width: 150px;
+}
+
+.sort-direction-select {
+  width: fit-content;
+  min-width: 100px;
 }
 
 .welcome-panel {
