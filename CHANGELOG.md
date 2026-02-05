@@ -13,7 +13,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/lang/en-US/
 - Vector similarity search functionality
 - Data statistics functionality
 
-## [0.2.1] - 2026-02-04
+## [0.2.1] - 2026-02-05
 
 ### Added
 - Index management functionality: Added index management TAB page in collection settings dialog
