@@ -13,6 +13,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/lang/en-US/
 - Vector similarity search functionality
 - Data statistics functionality
 
+## [0.2.3] - 2026-02-05
+
+### Added
+- Multi-tenant index support: support creating and managing indexes for multi-tenant scenarios
+- Conditional search functionality: support filtering and searching data based on payload field conditions
+
 ## [0.2.2] - 2026-02-05
 
 ### Added
