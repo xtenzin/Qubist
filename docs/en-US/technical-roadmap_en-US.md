@@ -280,5 +280,53 @@ Qubist/
 
 ## Future Expansion Directions
 
-1. **Search Functionality**: Support vector similarity search
-2. **Data Statistics**: Display collection and point statistics
+### 1. Vector Search Functionality
+
+#### 1.1 Direct Vector Search
+- Support users directly inputting vector data for search
+- Provide vector input field (similar to vector input when adding points)
+- Support quick operations:
+  - Use vector from currently selected point
+  - Use vector from latest point
+  - Generate random vector (for testing)
+- Search parameter configuration:
+  - Result limit (limit)
+  - Similarity threshold (scoreThreshold)
+- Search results display: Show matched points, similarity scores, and payload information
+
+#### 1.2 Ollama Integration
+- Integrate Ollama service into the page
+- Support users inputting text and calling embedding models to generate vectors
+- Ollama can be used in add, edit, and search functions:
+  - **Add Point**: User inputs text, generate vector via Ollama
+  - **Edit Point**: User inputs text, update vector via Ollama
+  - **Search**: User inputs text, generate query vector via Ollama for search
+
+### 2. Collection Field Analysis Functionality
+
+- Analyze field composition of payload in collections
+- Display field data types
+- Analysis scope: Only analyze current page data to avoid performance issues with large datasets
+- Provide field statistics display interface
+
+### 3. Collection Index Field Management
+
+- Add index management icon in collection list or collection info
+- Support managing collection index field configuration
+- Provide CRUD operations for index fields
+
+### 4. Data List Sorting Functionality
+
+- Support sorting data list
+- Sorting options:
+  - Dropdown list displays all fields in collection (including payload fields)
+  - Default option: No sorting
+- Sorting behavior impact:
+  - After enabling sorting, data retrieval uses sorted approach
+  - Affects export operation: Export uses sorted data
+  - Affects pagination operation: Maintains sorting state during pagination
+
+### 5. Data Statistics Functionality
+
+- Display collection and point statistics
+- Data distribution statistics
