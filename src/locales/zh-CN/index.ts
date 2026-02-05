@@ -211,6 +211,17 @@ export default {
     deleteFailed: '索引删除失败',
     loadFailed: '加载索引列表失败'
   },
+  filter: {
+    addCondition: '添加搜索条件',
+    fieldName: '字段名',
+    fieldValue: '字段值',
+    matchType: '匹配逻辑',
+    must: '必须',
+    should: '可选',
+    selectField: '请选择字段',
+    enterValue: '请输入字段值',
+    fieldAndValueRequired: '字段名和字段值不能为空'
+  },
   error: {
     requestFailed: '请求失败',
     parameterError: '请求参数错误',

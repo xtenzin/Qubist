@@ -211,6 +211,17 @@ export default {
     deleteFailed: 'Failed to delete index',
     loadFailed: 'Failed to load index list'
   },
+  filter: {
+    addCondition: 'Add Filter Condition',
+    fieldName: 'Field Name',
+    fieldValue: 'Field Value',
+    matchType: 'Match Type',
+    must: 'Must',
+    should: 'Should',
+    selectField: 'Please select field',
+    enterValue: 'Please enter field value',
+    fieldAndValueRequired: 'Field name and field value cannot be empty'
+  },
   error: {
     requestFailed: 'Request failed',
     parameterError: 'Request parameter error',

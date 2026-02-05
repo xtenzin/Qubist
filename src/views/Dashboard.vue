@@ -68,33 +68,63 @@
             </div>
           </div>
           <div class="panel-content">
-            <!-- 排序选择器 -->
-            <!-- Sort selector -->
-            <div class="sort-controls">
-              <el-select
-                v-model="sortField"
-                :placeholder="$t('point.sortBy')"
-                class="sort-field-select"
-                clearable
-                @change="handleSortChange"
-              >
-                <el-option :label="$t('point.noSort')" value="" />
-                <el-option
-                  v-for="field in availableSortFields"
-                  :key="field"
-                  :label="field"
-                  :value="field"
-                />
-              </el-select>
-              <el-select
-                v-if="sortField"
-                v-model="sortDirection"
-                class="sort-direction-select"
-                @change="handleSortChange"
-              >
-                <el-option :label="$t('point.sortAsc')" value="asc" />
-                <el-option :label="$t('point.sortDesc')" value="desc" />
-              </el-select>
+            <!-- 搜索条件和排序控制区域 -->
+            <!-- Filter conditions and sort controls area -->
+            <div class="filter-sort-controls">
+              <!-- 搜索条件区域 -->
+              <!-- Filter conditions area -->
+              <div class="filter-conditions">
+                <div class="filter-tags">
+                  <div class="filter-tags-content">
+                    <el-tag
+                      v-for="condition in filterConditions"
+                      :key="condition.id"
+                      :type="condition.matchType === 'must' ? 'danger' : 'success'"
+                      closable
+                      @close="handleRemoveFilter(condition.id)"
+                      class="filter-tag"
+                    >
+                      {{ condition.field }}={{ formatFilterValue(condition.value) }}
+                    </el-tag>
+                  </div>
+                  <el-button
+                    type="primary"
+                    :icon="Plus"
+                    circle
+                    size="small"
+                    @click="showAddFilterDialog = true"
+                    class="add-filter-btn"
+                  />
+                </div>
+              </div>
+              <!-- 排序选择器 -->
+              <!-- Sort selector -->
+              <div class="sort-controls">
+                <el-select
+                  v-model="sortField"
+                  :placeholder="$t('point.sortBy')"
+                  class="sort-field-select"
+                  clearable
+                  @change="handleSortChange"
+                >
+                  <el-option :label="$t('point.noSort')" value="" />
+                  <el-option
+                    v-for="field in availableSortFields"
+                    :key="field"
+                    :label="field"
+                    :value="field"
+                  />
+                </el-select>
+                <el-select
+                  v-if="sortField"
+                  v-model="sortDirection"
+                  class="sort-direction-select"
+                  @change="handleSortChange"
+                >
+                  <el-option :label="$t('point.sortAsc')" value="asc" />
+                  <el-option :label="$t('point.sortDesc')" value="desc" />
+                </el-select>
+              </div>
             </div>
             <PointsTable
               :points="pointsData.points"
@@ -169,6 +199,49 @@
     <!-- Export format selection dialog -->
     <ExportFormatDialog v-model="exportFormatVisible" @select="handleExportFormatSelect" />
 
+    <!-- 添加搜索条件对话框 -->
+    <!-- Add filter condition dialog -->
+    <el-dialog
+      v-model="showAddFilterDialog"
+      :title="$t('filter.addCondition')"
+      width="500px"
+      @close="resetAddFilterForm"
+    >
+      <el-form :model="addFilterForm" label-width="120px">
+        <el-form-item :label="$t('filter.fieldName')" required>
+          <el-select
+            v-model="addFilterForm.field"
+            :placeholder="$t('filter.selectField')"
+            filterable
+            style="width: 100%"
+          >
+            <el-option
+              v-for="field in availableFilterFields"
+              :key="field"
+              :label="field"
+              :value="field"
+            />
+          </el-select>
+        </el-form-item>
+        <el-form-item :label="$t('filter.fieldValue')" required>
+          <el-input
+            v-model="addFilterForm.value"
+            :placeholder="$t('filter.enterValue')"
+          />
+        </el-form-item>
+        <el-form-item :label="$t('filter.matchType')" required>
+          <el-radio-group v-model="addFilterForm.matchType">
+            <el-radio value="must">{{ $t('filter.must') }}</el-radio>
+            <el-radio value="should">{{ $t('filter.should') }}</el-radio>
+          </el-radio-group>
+        </el-form-item>
+      </el-form>
+      <template #footer>
+        <el-button @click="showAddFilterDialog = false">{{ $t('common.cancel') }}</el-button>
+        <el-button type="primary" @click="handleAddFilter">{{ $t('common.confirm') }}</el-button>
+      </template>
+    </el-dialog>
+
     <!-- 底部版权信息 -->
     <!-- Footer copyright information -->
     <div class="dashboard-footer">
@@ -184,7 +257,7 @@ import { ref, onMounted } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { ElMessage } from 'element-plus'
 import { Refresh, Plus, Coin, Delete, Download, Upload, ArrowDown } from '@element-plus/icons-vue'
-import { getPoints, getCollectionInfo } from '@/api/qdrant'
+import { getPoints, getCollectionInfo, countPoints } from '@/api/qdrant'
 import { useCollections } from '@/composables/useCollections'
 import { useConnectionStore } from '@/stores/connection'
 import DashboardHeader from '@/components/DashboardHeader.vue'
@@ -244,6 +317,25 @@ const sortField = ref<string>('')
 const sortDirection = ref<'asc' | 'desc'>('asc')
 const availableSortFields = ref<string[]>([])
 
+// 搜索条件相关状态
+// Filter conditions related state
+interface FilterCondition {
+  id: string
+  field: string
+  value: any
+  matchType: 'must' | 'should'
+}
+
+const filterConditions = ref<FilterCondition[]>([])
+const showAddFilterDialog = ref(false)
+const addFilterForm = ref({
+  field: '',
+  value: '',
+  matchType: 'must' as 'must' | 'should'
+})
+const availableFilterFields = ref<string[]>([])
+const payloadSchema = ref<any>({})
+
 // 加载点数据
 // Load points data
 const loadPoints = async () => {
@@ -251,7 +343,22 @@ const loadPoints = async () => {
 
   pointsData.value.loading = true
   try {
-    const offset = pointsData.value.pageOffsets.get(pointsData.value.currentPage) || null
+    // 获取当前页对应的 offset
+    // Get offset corresponding to current page
+    // 第一页的 offset 应该是 null
+    // First page's offset should be null
+    // 第二页及以后的 offset 应该是上一页保存的值
+    // Offset for page 2 and later should be the value saved from previous page
+    let offset: any = null
+    if (pointsData.value.currentPage === 1) {
+      // 第一页使用 null
+      // First page uses null
+      offset = null
+    } else {
+      // 其他页使用当前页保存的 offset（这个 offset 是上一页返回的 next_page_offset）
+      // Other pages use offset saved for current page (this offset is next_page_offset returned from previous page)
+      offset = pointsData.value.pageOffsets.get(pointsData.value.currentPage) ?? null
+    }
     
     // 构建排序参数
     // Build sort parameter
@@ -265,29 +372,77 @@ const loadPoints = async () => {
       }
     }
     
-    const result = await getPoints(
-      selectedCollection.value,
-      pointsData.value.pageSize,
-      offset,
-      true,
-      true,
-      orderBy
-    )
+    // 构建过滤条件
+    // Build filter conditions
+    const filter = buildFilter()
+    const hasFilter = filterConditions.value.length > 0
+    
+    // 根据是否有 filter 选择不同的 API 调用方式
+    // Choose different API call method based on whether filter exists
+    let result: { points: Point[]; next_page_offset: string | null }
+    
+    if (hasFilter) {
+      // 有 filter 时，使用 scroll API（必须使用 scroll API 才能支持 filter）
+      // When filter exists, use scroll API (scroll API is required to support filter)
+      result = await getPoints(
+        selectedCollection.value,
+        pointsData.value.pageSize,
+        offset,
+        true,
+        true,
+        orderBy,
+        filter
+      )
+    } else {
+      // 没有 filter 时，使用原来的逻辑（不传 filter 参数）
+      // When no filter, use original logic (don't pass filter parameter)
+      result = await getPoints(
+        selectedCollection.value,
+        pointsData.value.pageSize,
+        offset,
+        true,
+        true,
+        orderBy
+      )
+    }
+    
     pointsData.value.points = result.points
 
     // 保存下一页的 offset
     // Save next page offset
+    // 只有当返回的点数等于 pageSize 且有 next_page_offset 时，才保存下一页的 offset
+    // Only save next page offset when returned points count equals pageSize and next_page_offset exists
     if (result.points.length === pointsData.value.pageSize && result.next_page_offset) {
       pointsData.value.pageOffsets.set(pointsData.value.currentPage + 1, result.next_page_offset)
+    } else {
+      // 如果没有 next_page_offset 或返回的点数少于 pageSize，说明已经是最后一页，清除后续页的 offset
+      // If there is no next_page_offset or returned points count is less than pageSize, it means it's the last page, clear offsets for subsequent pages
+      const keysToDelete: number[] = []
+      pointsData.value.pageOffsets.forEach((_, page) => {
+        if (page > pointsData.value.currentPage) {
+          keysToDelete.push(page)
+        }
+      })
+      keysToDelete.forEach(page => {
+        pointsData.value.pageOffsets.delete(page)
+      })
     }
 
-    // 从集合信息获取总点数
-    // Get total points count from collection info
+    // 获取总点数
+    // Get total points count
     try {
-      const collectionInfo = await getCollectionInfo(selectedCollection.value)
-      pointsData.value.totalPoints = collectionInfo.points_count
+      if (hasFilter) {
+        // 有 filter 时，使用 count API 获取过滤后的点数
+        // When filter exists, use count API to get filtered points count
+        pointsData.value.totalPoints = await countPoints(selectedCollection.value, filter)
+      } else {
+        // 没有 filter 时，使用原来的逻辑（从集合信息获取总点数）
+        // When no filter, use original logic (get total points count from collection info)
+        const collectionInfo = await getCollectionInfo(selectedCollection.value)
+        pointsData.value.totalPoints = collectionInfo.points_count
+      }
     } catch (error) {
-      console.error('Failed to get collection info for points count:', error)
+      console.error('Failed to get points count:', error)
     }
     
     // 加载可用排序字段（如果还没有加载）
@@ -310,14 +465,16 @@ const handleSelectCollection = async (collectionName: string) => {
   pointsData.value.currentPage = 1
   pointsData.value.pageOffsets.clear()
   pointsData.value.pageOffsets.set(1, null)
-  // 重置排序
-  // Reset sorting
+  // 重置排序和搜索条件
+  // Reset sorting and filter conditions
   sortField.value = ''
   sortDirection.value = 'asc'
+  filterConditions.value = []
   await loadPoints()
-  // 加载可用排序字段
-  // Load available sort fields
+  // 加载可用排序字段和过滤字段
+  // Load available sort fields and filter fields
   await loadAvailableSortFields()
+  await loadAvailableFilterFields()
 }
 
 // 加载可用排序字段
@@ -365,6 +522,152 @@ const handleSortChange = () => {
   // 重新加载数据
   // Reload data
   loadPoints()
+}
+
+// 加载可用过滤字段
+// Load available filter fields
+const loadAvailableFilterFields = async () => {
+  if (!selectedCollection.value) return
+  
+  try {
+    const collectionInfo = await getCollectionInfo(selectedCollection.value)
+    const fields: string[] = []
+    
+    // 从 payload_schema 中获取所有字段
+    // Get all fields from payload_schema
+    const schema = (collectionInfo as any).payload_schema || {}
+    payloadSchema.value = schema
+    Object.keys(schema).forEach(fieldName => {
+      fields.push(fieldName)
+    })
+    
+    availableFilterFields.value = fields.sort()
+  } catch (error) {
+    console.error('Failed to load available filter fields:', error)
+    availableFilterFields.value = []
+  }
+}
+
+// 构建 Qdrant filter 对象
+// Build Qdrant filter object
+const buildFilter = (): any | undefined => {
+  if (filterConditions.value.length === 0) {
+    return undefined
+  }
+  
+  const must: any[] = []
+  const should: any[] = []
+  
+  filterConditions.value.forEach(condition => {
+    const conditionObj = {
+      key: condition.field,
+      match: {
+        value: parseFilterValue(condition.value, condition.field)
+      }
+    }
+    
+    if (condition.matchType === 'must') {
+      must.push(conditionObj)
+    } else {
+      should.push(conditionObj)
+    }
+  })
+  
+  const filter: any = {}
+  if (must.length > 0) {
+    filter.must = must
+  }
+  if (should.length > 0) {
+    filter.should = should
+  }
+  
+  return Object.keys(filter).length > 0 ? filter : undefined
+}
+
+// 解析过滤值（根据字段类型转换）
+// Parse filter value (convert based on field type)
+const parseFilterValue = (value: string, field: string): any => {
+  if (!value || !field) return value
+  
+  const fieldInfo = payloadSchema.value[field]
+  if (!fieldInfo) return value
+  
+  const dataType = fieldInfo.data_type || fieldInfo.type || ''
+  
+  // 根据字段类型转换值
+  // Convert value based on field type
+  if (dataType === 'integer') {
+    const num = parseInt(value, 10)
+    return isNaN(num) ? value : num
+  } else if (dataType === 'float') {
+    const num = parseFloat(value)
+    return isNaN(num) ? value : num
+  } else if (dataType === 'bool') {
+    return value === 'true' || value === '1'
+  }
+  
+  return value
+}
+
+// 格式化过滤值显示
+// Format filter value for display
+const formatFilterValue = (value: any): string => {
+  if (value === null || value === undefined) return ''
+  if (typeof value === 'boolean') return value ? 'true' : 'false'
+  return String(value)
+}
+
+// 添加过滤条件
+// Add filter condition
+const handleAddFilter = () => {
+  if (!addFilterForm.value.field || !addFilterForm.value.value) {
+    ElMessage.warning(t('filter.fieldAndValueRequired'))
+    return
+  }
+  
+  const condition: FilterCondition = {
+    id: Date.now().toString() + Math.random().toString(36).substr(2, 9),
+    field: addFilterForm.value.field,
+    value: addFilterForm.value.value,
+    matchType: addFilterForm.value.matchType
+  }
+  
+  filterConditions.value.push(condition)
+  showAddFilterDialog.value = false
+  resetAddFilterForm()
+  
+  // 重置分页并重新加载数据
+  // Reset pagination and reload data
+  pointsData.value.currentPage = 1
+  pointsData.value.pageOffsets.clear()
+  pointsData.value.pageOffsets.set(1, null)
+  loadPoints()
+}
+
+// 删除过滤条件
+// Remove filter condition
+const handleRemoveFilter = (id: string) => {
+  const index = filterConditions.value.findIndex(c => c.id === id)
+  if (index > -1) {
+    filterConditions.value.splice(index, 1)
+    
+    // 重置分页并重新加载数据
+    // Reset pagination and reload data
+    pointsData.value.currentPage = 1
+    pointsData.value.pageOffsets.clear()
+    pointsData.value.pageOffsets.set(1, null)
+    loadPoints()
+  }
+}
+
+// 重置添加过滤条件表单
+// Reset add filter form
+const resetAddFilterForm = () => {
+  addFilterForm.value = {
+    field: '',
+    value: '',
+    matchType: 'must'
+  }
 }
 
 // 刷新
@@ -569,7 +872,24 @@ onMounted(() => {
 
 // 监听分页变化
 // Watch pagination changes
-const handlePageChange = () => {
+const handlePageChange = (page: number, size: number) => {
+  // 更新当前页码和每页大小
+  // Update current page and page size
+  const sizeChanged = pointsData.value.pageSize !== size
+  
+  pointsData.value.currentPage = page
+  pointsData.value.pageSize = size
+  
+  // 如果每页大小变化，需要重置所有 offset
+  // If page size changes, need to reset all offsets
+  if (sizeChanged) {
+    pointsData.value.pageOffsets.clear()
+    pointsData.value.pageOffsets.set(1, null)
+    pointsData.value.currentPage = 1
+  }
+  
+  // 加载数据（loadPoints 会使用当前页码对应的 offset）
+  // Load data (loadPoints will use offset corresponding to current page)
   loadPoints()
 }
 
@@ -734,6 +1054,10 @@ const loadAllPoints = async (): Promise<Point[]> => {
   // Show loading message
   let loadingMessage: any = null
 
+  // 构建过滤条件（在循环外构建一次即可）
+  // Build filter conditions (build once outside the loop)
+  const filter = buildFilter()
+
   try {
     while (hasMore) {
       try {
@@ -749,7 +1073,8 @@ const loadAllPoints = async (): Promise<Point[]> => {
           offset,
           true,
           true,
-          orderBy
+          orderBy,
+          filter
         )
 
         allPoints.push(...result.points)
@@ -892,14 +1217,62 @@ const handleImportConfirm = async (points: Point[]) => {
   padding: 16px 24px;
 }
 
-.sort-controls {
+.filter-sort-controls {
   display: flex;
   align-items: center;
-  justify-content: flex-end;
+  justify-content: space-between;
   margin-bottom: 16px;
   padding-bottom: 16px;
   border-bottom: 1px solid #e4e7ed;
+  gap: 16px;
+}
+
+.filter-conditions {
+  flex: 1;
+  min-width: 0;
+}
+
+.filter-tags {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 12px;
+  border: 1px solid #dcdfe6;
+  border-radius: 4px;
+  background-color: #f5f7fa;
+  min-height: 40px;
   gap: 8px;
+}
+
+.filter-tags-content {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  flex: 1;
+  min-width: 0;
+}
+
+.filter-tag {
+  margin: 0;
+}
+
+.add-filter-btn {
+  flex-shrink: 0;
+  width: 24px;
+  height: 24px;
+  padding: 0;
+}
+
+.add-filter-btn :deep(.el-icon) {
+  font-size: 14px;
+}
+
+.sort-controls {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
 }
 
 .sort-field-select {

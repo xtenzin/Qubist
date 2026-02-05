@@ -60,7 +60,8 @@ export async function getPoints(
   offset: number | string | null = null,
   withPayload: boolean = true,
   withVector: boolean = false,
-  orderBy?: { key: string; direction?: 'asc' | 'desc' } | null
+  orderBy?: { key: string; direction?: 'asc' | 'desc' } | null,
+  filter?: any
 ): Promise<{ points: Point[]; next_page_offset: string | null }> {
   const connectionStore = useConnectionStore()
   const requestBody: any = {
@@ -74,6 +75,12 @@ export async function getPoints(
   // If sorting is specified, add order_by parameter
   if (orderBy) {
     requestBody.order_by = orderBy
+  }
+  
+  // 如果指定了过滤条件，添加 filter 参数
+  // If filter is specified, add filter parameter
+  if (filter) {
+    requestBody.filter = filter
   }
   
   const response = await request.post<{
