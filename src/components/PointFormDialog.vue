@@ -274,9 +274,9 @@ const handleGenerateRandomPayload = () => {
   // Randomly select type
   const randomType = types[Math.floor(Math.random() * types.length)]
   
-  // 当前毫秒时间戳（数字类型）
-  // Current millisecond timestamp (number type)
-  const timestamp = new Date().getTime()
+  // 当前时间戳（ISO 8601 格式，Qdrant datetime 字段要求）
+  // Current timestamp (ISO 8601 format, required by Qdrant datetime field)
+  const timestamp = new Date().toISOString()
   
   // 生成随机字符串内容
   // Generate random string content
