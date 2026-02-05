@@ -53,11 +53,26 @@ jobs:
         working-directory: ./src
         run: npm ci
 
-      # 构建项目
-      # Build project
+      # 构建项目（设置 NODE_ENV 为 production 以使用正确的 base 路径）
+      # Build project (set NODE_ENV to production to use correct base path)
       - name: Build project
         working-directory: ./src
+        env:
+          NODE_ENV: production
         run: npm run build
+
+      # 验证构建产物
+      # Verify build artifacts
+      - name: Verify build output
+        run: |
+          echo "Checking dist directory..."
+          ls -la dist/ || echo "dist directory not found"
+          if [ -f "dist/index.html" ]; then
+            echo "✓ index.html found"
+          else
+            echo "✗ index.html not found!"
+            exit 1
+          fi
 
       # 上传构建产物到 Pages
       # Upload build artifacts to Pages

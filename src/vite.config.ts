@@ -6,6 +6,7 @@ import { resolve } from 'path'
 // Vite configuration file
 export default defineConfig({
   plugins: [vue()],
+  base: process.env.NODE_ENV === 'production' ? '/Qubist/' : '/',
   root: resolve(__dirname),
   resolve: {
     alias: {
