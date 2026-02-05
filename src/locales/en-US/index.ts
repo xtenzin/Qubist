@@ -184,6 +184,25 @@ export default {
     m: 'M Parameter',
     efConstruct: 'EF Construct'
   },
+  index: {
+    management: 'Index Management',
+    currentIndexes: 'Current Indexes',
+    createIndex: 'Create Index',
+    fieldName: 'Field Name',
+    fieldSchema: 'Field Schema',
+    pointsCount: 'Points Count',
+    noIndexes: 'No indexes',
+    fieldNamePlaceholder: 'Please enter field name',
+    selectSchemaType: 'Please select schema type',
+    fieldNameRequired: 'Field name cannot be empty',
+    createSuccess: 'Index created successfully',
+    createFailed: 'Failed to create index',
+    deleteConfirm: 'Are you sure you want to delete the index for field "{field}"?',
+    deleteTitle: 'Confirm Delete Index',
+    deleteSuccess: 'Index deleted successfully',
+    deleteFailed: 'Failed to delete index',
+    loadFailed: 'Failed to load index list'
+  },
   error: {
     requestFailed: 'Request failed',
     parameterError: 'Request parameter error',

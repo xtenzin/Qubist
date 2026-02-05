@@ -184,6 +184,25 @@ export default {
     m: 'M 参数',
     efConstruct: 'EF Construct'
   },
+  index: {
+    management: '索引管理',
+    currentIndexes: '当前索引',
+    createIndex: '创建索引',
+    fieldName: '字段名',
+    fieldSchema: '字段类型',
+    pointsCount: '点数',
+    noIndexes: '暂无索引',
+    fieldNamePlaceholder: '请输入字段名',
+    selectSchemaType: '请选择字段类型',
+    fieldNameRequired: '字段名不能为空',
+    createSuccess: '索引创建成功',
+    createFailed: '索引创建失败',
+    deleteConfirm: '确定要删除字段 "{field}" 的索引吗？',
+    deleteTitle: '确认删除索引',
+    deleteSuccess: '索引删除成功',
+    deleteFailed: '索引删除失败',
+    loadFailed: '加载索引列表失败'
+  },
   error: {
     requestFailed: '请求失败',
     parameterError: '请求参数错误',
