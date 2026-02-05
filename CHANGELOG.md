@@ -13,6 +13,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/lang/en-US/
 - Vector similarity search functionality
 - Data statistics functionality
 
+## [0.2.2] - 2026-02-05
+
+### Added
+- Data list sorting functionality: support sorting by indexed payload fields (integer, float, datetime) with ascending/descending order
+- Sort controls: sort field selector and sort direction selector in data list interface
+
+### Changed
+- Improved UI: sort controls are right-aligned in data list interface
+
+### Fixed
+- Fixed timestamp format: auto-generated payload timestamp now uses ISO 8601 format instead of JavaScript timestamp
+
 ## [0.2.1] - 2026-02-05
 
 ### Added
@@ -38,21 +50,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/lang/en-US/
   - Export all data (all data in collection)
 - Export format selection dialog with visual icon buttons (JSON and CSV)
 - Progress indication for large data exports with loading status
-- Data list sorting functionality: support sorting by indexed payload fields (integer, float, datetime) with ascending/descending order
-- Sort controls: sort field selector and sort direction selector in data list interface
 
 ### Changed
 - Improved export workflow: format selection dialog appears after choosing export scope
 - Enhanced data loading: export operations load data in batches (500 points per request) to avoid timeouts
 - Optimized export performance: added delays between requests to prevent server overload
 - Improved UI: wider form fields in create collection dialog to prevent label text wrapping
-- Improved UI: sort controls are right-aligned in data list interface
 
 ### Fixed
 - Fixed connection state check: prevent loading collections when not connected
 - Fixed API error handling: improved error messages and connection validation
 - Fixed import dialog: proper internationalization for file format tip text
-- Fixed timestamp format: auto-generated payload timestamp now uses ISO 8601 format instead of JavaScript timestamp
 
 ### Improved
 - Better error handling for batch operations
