@@ -47,6 +47,12 @@
                     <el-tag>{{ formatFieldSchema(row.field_schema) }}</el-tag>
                   </template>
                 </el-table-column>
+                <el-table-column prop="is_tenant" :label="$t('index.isTenant')" width="120" align="center">
+                  <template #default="{ row }">
+                    <el-tag v-if="row.is_tenant" type="warning" size="small">{{ $t('index.tenantIndex') }}</el-tag>
+                    <span v-else class="loading-text">-</span>
+                  </template>
+                </el-table-column>
                 <el-table-column prop="points_count" :label="$t('index.pointsCount')" width="120">
                   <template #default="{ row }">
                     <span v-if="row.points_count !== null && row.points_count !== undefined">{{ row.points_count }}</span>
@@ -59,7 +65,7 @@
                       type="danger"
                       link
                       size="small"
-                      @click="handleDeleteIndex(row.field_name)"
+                      @click="handleDeleteIndex(row)"
                       :loading="deletingIndex === row.field_name"
                     >
                       {{ $t('common.delete') }}
@@ -99,6 +105,10 @@
               <el-option label="geo" value="geo" />
               <el-option label="bool" value="bool" />
             </el-select>
+          </el-form-item>
+          <el-form-item :label="$t('index.isTenant')">
+            <el-switch v-model="createIndexForm.is_tenant" />
+            <span class="form-item-tip">{{ $t('index.isTenantTip') }}</span>
           </el-form-item>
         </el-form>
         <template #footer>
@@ -157,13 +167,14 @@ const formData = ref({
 // 索引管理相关状态
 // Index management related state
 const indexLoading = ref(false)
-const indexList = ref<Array<{ field_name: string; field_schema: any }>>([])
+const indexList = ref<Array<{ field_name: string; field_schema: any; points_count: number | null; is_tenant: boolean }>>([])
 const showCreateIndexDialog = ref(false)
 const creatingIndex = ref(false)
 const deletingIndex = ref<string | null>(null)
 const createIndexForm = ref({
   field_name: '',
-  field_schema_type: 'keyword'
+  field_schema_type: 'keyword',
+  is_tenant: false
 })
 const collectionInfoData = ref<CollectionInfo | null>(null)
 
@@ -325,13 +336,20 @@ const loadIndexList = async () => {
     // In Qdrant API response, payload_schema may be in result.payload_schema or as a direct property
     // payload_schema 中每个字段都包含 points 字段，表示该索引字段命中的点数
     // Each field in payload_schema contains a points field indicating the number of points indexed
+    // is_tenant 标志位于 params 中，表示该索引是否为多租户索引
+    // is_tenant flag is located in params, indicating whether the index is a tenant index
     const payloadSchema = (info as any).payload_schema || (info as any).result?.payload_schema || {}
     indexList.value = Object.keys(payloadSchema).map(fieldName => {
       const fieldInfo = payloadSchema[fieldName]
+      // 提取 is_tenant 标志，可能在 params.is_tenant 或直接作为字段属性
+      // Extract is_tenant flag, may be in params.is_tenant or as a direct field property
+      const params = fieldInfo.params || {}
+      const isTenant = params.is_tenant === true || fieldInfo.is_tenant === true
       return {
         field_name: fieldName,
         field_schema: fieldInfo,
-        points_count: fieldInfo.points !== undefined ? fieldInfo.points : null
+        points_count: fieldInfo.points !== undefined ? fieldInfo.points : null,
+        is_tenant: isTenant
       }
     })
   } catch (error) {
@@ -365,9 +383,25 @@ const handleCreateIndex = async () => {
   
   creatingIndex.value = true
   try {
-    const fieldSchema = createIndexForm.value.field_schema_type 
-      ? { type: createIndexForm.value.field_schema_type }
-      : undefined
+    // 构建字段模式，如果设置了 is_tenant，需要在对象中包含
+    // Build field schema, if is_tenant is set, need to include it in the object
+    // 根据 Qdrant 官方文档，创建多租户索引的格式是：{ type: "keyword", is_tenant: true }
+    // According to Qdrant official documentation, format for creating tenant index is: { type: "keyword", is_tenant: true }
+    let fieldSchema: any = undefined
+    if (createIndexForm.value.field_schema_type) {
+      if (createIndexForm.value.is_tenant) {
+        // 如果设置了 is_tenant，使用对象结构，包含 type 和 is_tenant
+        // If is_tenant is set, use object structure with type and is_tenant
+        fieldSchema = {
+          type: createIndexForm.value.field_schema_type,
+          is_tenant: true
+        }
+      } else {
+        // 简单类型，直接使用字符串
+        // Simple type, use string directly
+        fieldSchema = createIndexForm.value.field_schema_type
+      }
+    }
     
     await createPayloadIndex(props.collectionName, createIndexForm.value.field_name.trim(), fieldSchema)
     ElMessage.success(t('index.createSuccess'))
@@ -388,12 +422,21 @@ const handleCreateIndex = async () => {
 
 // 删除索引
 // Delete index
-const handleDeleteIndex = async (fieldName: string) => {
+const handleDeleteIndex = async (indexRow: { field_name: string; is_tenant: boolean }) => {
   if (!props.collectionName) return
   
+  const fieldName = indexRow.field_name
+  const isTenant = indexRow.is_tenant
+  
   try {
+    // 如果是多租户索引，给出特殊警告
+    // If it's a tenant index, give special warning
+    const confirmMessage = isTenant 
+      ? t('index.deleteTenantIndexConfirm', { field: fieldName })
+      : t('index.deleteConfirm', { field: fieldName })
+    
     await ElMessageBox.confirm(
-      t('index.deleteConfirm', { field: fieldName }),
+      confirmMessage,
       t('index.deleteTitle'),
       {
         type: 'warning',
@@ -426,7 +469,8 @@ const handleDeleteIndex = async (fieldName: string) => {
 const resetCreateIndexForm = () => {
   createIndexForm.value = {
     field_name: '',
-    field_schema_type: 'keyword'
+    field_schema_type: 'keyword',
+    is_tenant: false
   }
 }
 
@@ -456,5 +500,11 @@ const handleClose = () => {
 
 .loading-text {
   color: #909399;
+}
+
+.form-item-tip {
+  margin-left: 8px;
+  color: #909399;
+  font-size: 12px;
 }
 </style>
