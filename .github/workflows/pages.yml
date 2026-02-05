@@ -75,6 +75,24 @@ jobs:
             exit 1
           fi
 
+      # 创建 404.html 以支持 Vue Router 的 History 模式
+      # Create 404.html to support Vue Router History mode
+      # GitHub Pages 会在找不到文件时使用 404.html，然后 Vue Router 可以处理路由
+      # GitHub Pages will use 404.html when file not found, then Vue Router can handle routing
+      - name: Create 404.html for SPA routing support
+        run: |
+          cp dist/index.html dist/404.html
+          echo "✓ 404.html created for SPA routing support"
+
+      # 创建 .nojekyll 文件以禁用 Jekyll 处理
+      # Create .nojekyll file to disable Jekyll processing
+      # 确保 GitHub Pages 正确处理所有文件，包括以下划线开头的文件
+      # Ensure GitHub Pages processes all files correctly, including files starting with underscore
+      - name: Create .nojekyll file
+        run: |
+          touch dist/.nojekyll
+          echo "✓ .nojekyll file created"
+
       # 上传构建产物到 Pages
       # Upload build artifacts to Pages
       - name: Setup Pages
