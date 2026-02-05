@@ -21,7 +21,37 @@ After building, static files will be generated in the `dist/` directory.
 
 ## 部署方式
 
-### 方式一：使用 Nginx（推荐）
+### 方式一：使用 GitHub Pages（最简单，推荐用于演示）
+
+GitHub Pages 提供了最简单的部署方式，无需服务器配置，每次推送到 main 分支后会自动部署。
+
+**优势**：
+- 无需服务器配置
+- 自动部署（推送到 main 分支后自动构建和部署）
+- 免费使用
+- HTTPS 自动配置
+
+**使用步骤**：
+
+1. **启用 GitHub Pages**
+   - 进入仓库的 Settings → Pages
+   - Source 选择 "GitHub Actions"
+   - 保存设置
+
+2. **自动部署**
+   - 推送到 main 分支后，GitHub Actions 会自动构建并部署
+   - 部署完成后，访问地址为：`https://<username>.github.io/Qubist/`
+
+3. **查看部署状态**
+   - 在仓库的 Actions 标签页可以查看部署进度
+   - 部署成功后，在仓库的 Settings → Pages 可以看到部署地址
+
+**注意事项**：
+- 使用 GitHub Pages 时，需要确保 Qdrant 服务器可以从互联网访问
+- 如果 Qdrant 服务器在本地或内网，建议使用其他部署方式
+- GitHub Pages 有构建时间限制，大型项目可能需要优化构建时间
+
+### 方式二：使用 Nginx（推荐用于生产环境）
 
 1. **复制构建文件**
    **Copy build files**
@@ -118,7 +148,7 @@ After building, static files will be generated in the `dist/` directory.
    systemctl reload apache2
    ```
 
-### 方式三：使用 Docker
+### 方式三：使用 Docker Compose
 
 1. **创建 Dockerfile**
    **Create Dockerfile**
@@ -174,7 +204,7 @@ After building, static files will be generated in the `dist/` directory.
    docker run -d -p 8080:80 qubist
    ```
 
-### 方式四：使用 Docker Compose
+### 方式四：使用 Docker
 
 创建 `docker-compose.yml`：
 Create `docker-compose.yml`:

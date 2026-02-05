@@ -1,0 +1,83 @@
+# GitHub Actions Pages 部署工作流
+# GitHub Actions Pages deployment workflow
+name: Deploy to GitHub Pages
+
+# 触发条件
+# Trigger conditions
+on:
+  # 推送到 main 分支时触发
+  # Trigger on push to main branch
+  push:
+    branches: [main]
+  # 支持手动触发
+  # Support manual trigger
+  workflow_dispatch:
+
+# 授予必要的权限
+# Grant necessary permissions
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# 允许一个并发部署
+# Allow one concurrent deployment
+concurrency:
+  group: "pages"
+  cancel-in-progress: false
+
+jobs:
+  # 构建项目
+  # Build project
+  build:
+    runs-on: ubuntu-latest
+    
+    steps:
+      # 检出代码
+      # Checkout code
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      # 设置 Node.js
+      # Setup Node.js
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20.x'
+          cache: 'npm'
+          cache-dependency-path: src/package-lock.json
+
+      # 安装依赖
+      # Install dependencies
+      - name: Install dependencies
+        working-directory: ./src
+        run: npm ci
+
+      # 构建项目
+      # Build project
+      - name: Build project
+        working-directory: ./src
+        run: npm run build
+
+      # 上传构建产物到 Pages
+      # Upload build artifacts to Pages
+      - name: Setup Pages
+        uses: actions/configure-pages@v4
+
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: './dist'
+
+  # 部署到 GitHub Pages
+  # Deploy to GitHub Pages
+  deploy:
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4

@@ -18,7 +18,37 @@ After building, static files will be generated in the `dist/` directory.
 
 ## Deployment Methods
 
-### Method 1: Using Nginx (Recommended)
+### Method 1: Using GitHub Pages (Simplest, Recommended for Demo)
+
+GitHub Pages provides the simplest deployment method, requiring no server configuration. It automatically deploys after each push to the main branch.
+
+**Advantages**:
+- No server configuration required
+- Automatic deployment (builds and deploys automatically after pushing to main branch)
+- Free to use
+- HTTPS automatically configured
+
+**Steps**:
+
+1. **Enable GitHub Pages**
+   - Go to repository Settings → Pages
+   - Select "GitHub Actions" as Source
+   - Save settings
+
+2. **Automatic Deployment**
+   - After pushing to main branch, GitHub Actions will automatically build and deploy
+   - After deployment completes, access URL: `https://<username>.github.io/Qubist/`
+
+3. **Check Deployment Status**
+   - View deployment progress in repository Actions tab
+   - After successful deployment, see deployment URL in repository Settings → Pages
+
+**Notes**:
+- When using GitHub Pages, ensure Qdrant server is accessible from the internet
+- If Qdrant server is local or internal network, consider using other deployment methods
+- GitHub Pages has build time limits, large projects may need build optimization
+
+### Method 2: Using Nginx (Recommended for Production)
 
 1. **Copy build files**
    ```bash
@@ -152,7 +182,7 @@ After building, static files will be generated in the `dist/` directory.
    docker run -d -p 8080:80 qubist
    ```
 
-### Method 4: Using Docker Compose
+### Method 4: Using Docker
 
 Create `docker-compose.yml`:
 

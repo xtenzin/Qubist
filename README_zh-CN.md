@@ -156,7 +156,19 @@ Qubist/
 └── README_zh-CN.md        # 本文件（中文）
 ```
 
-## 安装
+## 快速开始
+
+### 在线使用（GitHub Pages）
+
+您可以直接在线使用 Qubist，无需安装。最新版本会自动部署到 GitHub Pages：
+
+**🌐 在线演示**: [https://xtenzin.github.io/Qubist/](https://xtenzin.github.io/Qubist/)
+
+> **注意**：使用在线版本时，需要确保您的 Qdrant 服务器可以从互联网访问，或使用允许 CORS 请求的 Qdrant 服务器。出于安全考虑，建议仅将在线版本用于测试或与受信任的 Qdrant 实例一起使用。
+
+### 本地安装
+
+如果您希望本地运行 Qubist，请按照以下步骤操作：
 
 1. 克隆仓库：
 ```bash

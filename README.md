@@ -156,7 +156,19 @@ Qubist/
 └── README_zh-CN.md        # Project description (Chinese)
 ```
 
-## Installation
+## Quick Start
+
+### Online Demo (GitHub Pages)
+
+You can use Qubist directly online without installation. The latest version is automatically deployed to GitHub Pages:
+
+**🌐 Online Demo**: [https://xtenzin.github.io/Qubist/](https://xtenzin.github.io/Qubist/)
+
+> **Note**: To use the online version, you need to ensure your Qdrant server is accessible from the internet, or use a Qdrant server that allows CORS requests. For security reasons, it's recommended to use the online version only for testing or with trusted Qdrant instances.
+
+### Local Installation
+
+If you prefer to run Qubist locally, follow these steps:
 
 1. Clone the repository:
 ```bash
