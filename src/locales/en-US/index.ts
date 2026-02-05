@@ -171,7 +171,11 @@ export default {
     importPreviewPoints: 'points',
     import: 'Import',
     importData: 'Import Data',
-    importFileFormatTip: 'Supports JSON and CSV format files'
+    importFileFormatTip: 'Supports JSON and CSV format files',
+    sortBy: 'Sort By',
+    noSort: 'No Sort',
+    sortAsc: 'Ascending',
+    sortDesc: 'Descending'
   },
   optimizer: {
     config: 'Optimizer Config',

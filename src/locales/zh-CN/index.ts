@@ -171,7 +171,11 @@ export default {
     importPreviewPoints: '个点',
     import: '导入',
     importData: '导入数据',
-    importFileFormatTip: '支持 JSON 和 CSV 格式文件'
+    importFileFormatTip: '支持 JSON 和 CSV 格式文件',
+    sortBy: '排序',
+    noSort: '不排序',
+    sortAsc: '升序',
+    sortDesc: '降序'
   },
   optimizer: {
     config: '优化器配置',
