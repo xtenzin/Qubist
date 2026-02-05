@@ -25,6 +25,40 @@ Copyright © 2026 xtenzin. All rights reserved.
 
 Qubist is a web-based management interface for Qdrant vector database, designed to simplify common data management operations. While the official Qdrant interface provides similar functionality, this tool aims to offer a more intuitive and user-friendly experience, especially for scenarios requiring quick data addition and management.
 
+## Screenshots
+
+### Login Page
+The login page provides a clean interface for connecting to Qdrant servers, with support for multiple connection configurations and language switching.
+
+![Login Page](screenshots/screenshot-login_en-US.png)
+
+### Dashboard
+The main dashboard displays collections in a sidebar and provides comprehensive data management capabilities.
+
+![Dashboard](screenshots/screenshot-dashboard_en-US.png)
+
+### Collection Settings
+Manage collection configurations including basic settings and advanced parameters.
+
+![Collection Settings](screenshots/screenshot-dashboard-collection-setting-base_en-US.png)
+
+### Index Management
+Create and manage payload indexes for efficient data querying and filtering.
+
+![Index Management](screenshots/screenshot-dashboard-collection-index-management_en-US.png)
+
+### Data Operations
+Complete CRUD operations for point data, including viewing, adding, and importing data.
+
+#### View Data
+![View Data](screenshots/screenshot-dashboard-collection-data-view_en-US.png)
+
+#### Add Data
+![Add Data](screenshots/screenshot-dashboard-collection-data-add_en-US.png)
+
+#### Import Data
+![Import Data](screenshots/screenshot-dashboard-collection-data-import_en-US.png)
+
 ## Features
 
 ### Connection Management
@@ -114,6 +148,9 @@ Qubist/
 │   ├── en-US/             # English documentation
 │   ├── README.md          # Documentation guide (English)
 │   └── README_zh-CN.md    # Documentation guide (Chinese)
+├── screenshots/            # Screenshots directory
+│   ├── screenshot-*_en-US.png  # English screenshots
+│   └── screenshot-*_zh-CN.png  # Chinese screenshots
 ├── LICENSE                # License file
 ├── README.md              # This file (English)
 └── README_zh-CN.md        # Project description (Chinese)

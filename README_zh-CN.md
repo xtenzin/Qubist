@@ -25,6 +25,40 @@
 
 Qubist 是一个基于 Web 的 Qdrant 向量数据库管理界面，旨在简化常见的数据管理操作。虽然官方 Qdrant 界面提供了类似的功能，但本工具旨在提供更直观、更友好的用户体验，特别适合需要快速添加和管理数据的场景。
 
+## 截图展示
+
+### 登录页面
+登录页面提供了简洁的连接配置界面，支持多连接配置和语言切换。
+
+![登录页面](screenshots/screenshot-login_zh-CN.png)
+
+### 主界面
+主界面在侧边栏显示集合列表，并提供全面的数据管理功能。
+
+![主界面](screenshots/screenshot-dashboard_zh-CN.png)
+
+### 集合设置
+管理集合配置，包括基本设置和高级参数。
+
+![集合设置](screenshots/screenshot-dashboard-collection-setting-base_zh-CN.png)
+
+### 索引管理
+创建和管理 payload 索引，用于高效的数据查询和筛选。
+
+![索引管理](screenshots/screenshot-dashboard-collection-index-management_zh-CN.png)
+
+### 数据操作
+完整的点数据 CRUD 操作，包括查看、添加和导入数据。
+
+#### 查看数据
+![查看数据](screenshots/screenshot-dashboard-collection-data-view_zh-CN.png)
+
+#### 添加数据
+![添加数据](screenshots/screenshot-dashboard-collection-data-add_zh-CN.png)
+
+#### 导入数据
+![导入数据](screenshots/screenshot-dashboard-collection-data-import_zh-CN.png)
+
 ## 功能特性
 
 ### 连接管理
@@ -114,6 +148,9 @@ Qubist/
 │   ├── en-US/             # 英文文档
 │   ├── README.md          # 文档指南（英文）
 │   └── README_zh-CN.md    # 文档指南（中文）
+├── screenshots/            # 截图目录
+│   ├── screenshot-*_en-US.png  # 英文截图
+│   └── screenshot-*_zh-CN.png  # 中文截图
 ├── LICENSE                # 许可证文件
 ├── README.md              # 项目说明（英文）
 └── README_zh-CN.md        # 本文件（中文）
