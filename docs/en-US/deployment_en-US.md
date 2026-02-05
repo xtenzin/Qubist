@@ -38,6 +38,7 @@ GitHub Pages provides the simplest deployment method, requiring no server config
 2. **Automatic Deployment**
    - After pushing to main branch, GitHub Actions will automatically build and deploy
    - After deployment completes, access URL: `https://<username>.github.io/Qubist/`
+   - **Online Demo**: [https://xtenzin.github.io/Qubist/](https://xtenzin.github.io/Qubist/)
 
 3. **Check Deployment Status**
    - View deployment progress in repository Actions tab

@@ -9,6 +9,8 @@
 
 A Qdrant vector database web management tool developed with Vue 3 + TypeScript, providing a more user-friendly data management solution than the official interface.
 
+**🌐 [Try Online Demo](https://xtenzin.github.io/Qubist/)** | **在线演示**: [https://xtenzin.github.io/Qubist/](https://xtenzin.github.io/Qubist/)
+
 ## Version
 
 **Current Version**: 0.2.3
